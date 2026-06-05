@@ -1,0 +1,16 @@
+هذه النسخة مرتبة للرفع على GitHub.
+
+ارفع كل ما بداخل هذا المجلد إلى GitHub:
+1- public
+2- db
+3- docs
+4- server.js
+5- package.json
+6- railway.toml
+7- README_DEPLOY.md
+8- ENV_EXAMPLE.txt اختياري
+
+مهم:
+- لا ترفع ملف .env إن وجد.
+- لا تكتب DATABASE_URL داخل GitHub.
+- DATABASE_URL يتم وضعه فقط داخل Railway Variables.

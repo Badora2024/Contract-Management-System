@@ -1,0 +1,19 @@
+خطوات تشغيل الحزمة على Railway
+
+1) فك الضغط عن الملف.
+2) ارفع محتويات المجلد إلى GitHub Repository.
+3) في Railway اختر:
+   New Project > Deploy from GitHub Repo
+4) اختر المستودع.
+5) داخل خدمة التطبيق أضف المتغير:
+   DATABASE_URL
+   أو اربطه مباشرة من PostgreSQL Service الموجود عندك.
+6) انتظر اكتمال النشر.
+7) افتح:
+   https://YOUR-APP.railway.app/api/health
+8) إذا ظهر ok=true افتح رابط النظام الأساسي.
+9) أول تشغيل سيحفظ البيانات المدمجة في PostgreSQL تلقائيًا.
+10) أي تعديل بعد ذلك يتم حفظه في قاعدة البيانات المشتركة.
+
+تنبيه:
+لا ترسل ولا ترفع DATABASE_URL في GitHub.

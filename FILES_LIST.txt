@@ -1,0 +1,13 @@
+ENV_EXAMPLE.txt
+README_DEPLOY.md
+UPLOAD_STEPS_AR.txt
+db
+db/schema.sql
+docs
+docs/خطوات_النشر_على_Railway.txt
+docs/فحص_الملفات.txt
+package.json
+public
+public/index.html
+railway.toml
+server.js
