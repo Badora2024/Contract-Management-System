@@ -21,7 +21,6 @@ const pool = new Pool({
 });
 
 const app = express();
-
 app.use(express.json({ limit: "120mb" }));
 
 app.use(express.static(path.join(__dirname, "public"), {
@@ -66,18 +65,18 @@ async function initDb() {
   `);
 
   await pool.query(`
-    CREATE TABLE IF NOT EXISTS audit_log (
-      audit_id BIGSERIAL PRIMARY KEY,
-      reason TEXT,
-      payload JSONB,
-      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-    );
-  `);
-
-  await pool.query(`
     INSERT INTO system_state (id, data, reason)
     VALUES (1, '{}'::jsonb, 'initial')
     ON CONFLICT (id) DO NOTHING;
+  `);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS save_log (
+      log_id BIGSERIAL PRIMARY KEY,
+      reason TEXT,
+      summary JSONB,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
   `);
 }
 
@@ -86,7 +85,6 @@ app.get("/api/health", async (req, res) => {
     const r = await pool.query("SELECT NOW() AS now");
     res.json({ ok: true, db: "online", now: r.rows[0].now });
   } catch (err) {
-    console.error("HEALTH ERROR:", err);
     res.status(500).json({ ok: false, error: "DB_ERROR", message: err.message });
   }
 });
@@ -95,14 +93,8 @@ app.get("/api/data", async (req, res) => {
   try {
     const r = await pool.query("SELECT data, updated_at, reason FROM system_state WHERE id=1");
     const row = r.rows[0] || { data: null };
-    res.json({
-      ok: true,
-      data: row.data,
-      updated_at: row.updated_at,
-      reason: row.reason
-    });
+    res.json({ ok: true, data: row.data, updated_at: row.updated_at, reason: row.reason });
   } catch (err) {
-    console.error("LOAD ERROR:", err);
     res.status(500).json({ ok: false, error: "LOAD_FAILED", message: err.message });
   }
 });
@@ -111,7 +103,6 @@ app.post("/api/save", async (req, res) => {
   const client = await pool.connect();
   try {
     let payload = req.body || {};
-
     if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
       return res.status(400).json({ ok: false, error: "INVALID_PAYLOAD" });
     }
@@ -119,7 +110,6 @@ app.post("/api/save", async (req, res) => {
     payload = sanitizeForJsonb(payload);
     payload.version = payload.version || 1;
     payload.updated_at = payload.updated_at || new Date().toISOString();
-
     const size = payloadSizeMB(payload);
 
     await client.query("BEGIN");
@@ -131,25 +121,29 @@ app.post("/api/save", async (req, res) => {
       [JSON.stringify(payload), payload.reason || "", payload.updated_by || ""]
     );
 
-    await client.query(
-      `INSERT INTO audit_log (reason, payload)
-       VALUES ($1, $2::jsonb)`,
-      [payload.reason || "save", JSON.stringify({
-        version: payload.version,
-        updated_at: payload.updated_at,
-        reason: payload.reason || "",
-        payloadSizeMB: size,
-        counts: {
-          diwan: Array.isArray(payload.diwan) ? payload.diwan.length : 0,
-          jahaat: Array.isArray(payload.jahaat) ? payload.jahaat.length : 0,
-          audit: Array.isArray(payload.audit) ? payload.audit.length : 0,
-          docsKeys: payload.docs && typeof payload.docs === "object" ? Object.keys(payload.docs).length : 0
-        }
-      })]
-    );
+    // سجل اختياري لا يوقف الحفظ لو حصل خطأ.
+    try {
+      await client.query(
+        `INSERT INTO save_log (reason, summary)
+         VALUES ($1, $2::jsonb)`,
+        [payload.reason || "save", JSON.stringify({
+          version: payload.version,
+          updated_at: payload.updated_at,
+          reason: payload.reason || "",
+          payloadSizeMB: size,
+          counts: {
+            diwan: Array.isArray(payload.diwan) ? payload.diwan.length : 0,
+            jahaat: Array.isArray(payload.jahaat) ? payload.jahaat.length : 0,
+            audit: Array.isArray(payload.audit) ? payload.audit.length : 0,
+            docsKeys: payload.docs && typeof payload.docs === "object" ? Object.keys(payload.docs).length : 0
+          }
+        })]
+      );
+    } catch (logErr) {
+      console.warn("Optional save_log insert skipped:", logErr.message);
+    }
 
     await client.query("COMMIT");
-
     res.json({
       ok: true,
       saved_at: new Date().toISOString(),
@@ -161,13 +155,7 @@ app.post("/api/save", async (req, res) => {
     });
   } catch (err) {
     try { await client.query("ROLLBACK"); } catch {}
-    console.error("SAVE ERROR:", {
-      message: err.message,
-      code: err.code,
-      detail: err.detail,
-      hint: err.hint,
-      stack: err.stack
-    });
+    console.error("SAVE ERROR:", err);
     res.status(500).json({
       ok: false,
       error: "SAVE_FAILED",
@@ -188,7 +176,6 @@ app.get("/api/export", async (req, res) => {
     res.setHeader("Content-Disposition", "attachment; filename=contracts-system-backup.json");
     res.send(JSON.stringify(r.rows[0]?.data || {}, null, 2));
   } catch (err) {
-    console.error("EXPORT ERROR:", err);
     res.status(500).json({ ok: false, error: "EXPORT_FAILED", message: err.message });
   }
 });
@@ -202,7 +189,6 @@ app.post("/api/import", async (req, res) => {
     );
     res.json({ ok: true });
   } catch (err) {
-    console.error("IMPORT ERROR:", err);
     res.status(500).json({ ok: false, error: "IMPORT_FAILED", message: err.message });
   }
 });
@@ -213,9 +199,7 @@ app.get("*", (req, res) => {
 
 initDb()
   .then(() => {
-    app.listen(PORT, () => {
-      console.log(`Contracts system running on port ${PORT}`);
-    });
+    app.listen(PORT, () => console.log(`Contracts system running on port ${PORT}`));
   })
   .catch(err => {
     console.error("Database initialization failed:", err);
