@@ -22,11 +22,36 @@ const pool = new Pool({
 
 const app = express();
 
-app.use(express.json({ limit: "50mb" }));
+app.use(express.json({ limit: "120mb" }));
+
 app.use(express.static(path.join(__dirname, "public"), {
   etag: false,
-  maxAge: "0"
+  maxAge: "0",
+  setHeaders: (res) => {
+    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+  }
 }));
+
+function sanitizeForJsonb(value) {
+  if (typeof value === "string") return value.replace(/\u0000/g, "");
+  if (Array.isArray(value)) return value.map(sanitizeForJsonb);
+  if (value && typeof value === "object") {
+    const out = {};
+    for (const [k, v] of Object.entries(value)) {
+      out[String(k).replace(/\u0000/g, "")] = sanitizeForJsonb(v);
+    }
+    return out;
+  }
+  return value;
+}
+
+function payloadSizeMB(payload) {
+  try {
+    return (Buffer.byteLength(JSON.stringify(payload), "utf8") / 1024 / 1024).toFixed(2);
+  } catch {
+    return "unknown";
+  }
+}
 
 async function initDb() {
   await pool.query(`
@@ -61,8 +86,8 @@ app.get("/api/health", async (req, res) => {
     const r = await pool.query("SELECT NOW() AS now");
     res.json({ ok: true, db: "online", now: r.rows[0].now });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ ok: false, error: "DB_ERROR" });
+    console.error("HEALTH ERROR:", err);
+    res.status(500).json({ ok: false, error: "DB_ERROR", message: err.message });
   }
 });
 
@@ -77,50 +102,82 @@ app.get("/api/data", async (req, res) => {
       reason: row.reason
     });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ ok: false, error: "LOAD_FAILED" });
+    console.error("LOAD ERROR:", err);
+    res.status(500).json({ ok: false, error: "LOAD_FAILED", message: err.message });
   }
 });
 
 app.post("/api/save", async (req, res) => {
+  const client = await pool.connect();
   try {
-    const payload = req.body || {};
-    if (!payload || typeof payload !== "object") {
+    let payload = req.body || {};
+
+    if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
       return res.status(400).json({ ok: false, error: "INVALID_PAYLOAD" });
     }
 
+    payload = sanitizeForJsonb(payload);
+    payload.version = payload.version || 1;
     payload.updated_at = payload.updated_at || new Date().toISOString();
 
-    await pool.query("BEGIN");
+    const size = payloadSizeMB(payload);
 
-    await pool.query(
+    await client.query("BEGIN");
+
+    await client.query(
       `UPDATE system_state
        SET data=$1::jsonb, updated_at=NOW(), reason=$2, updated_by=$3
        WHERE id=1`,
       [JSON.stringify(payload), payload.reason || "", payload.updated_by || ""]
     );
 
-    await pool.query(
-      `INSERT INTO audit_log (reason, payload) VALUES ($1, $2::jsonb)`,
+    await client.query(
+      `INSERT INTO audit_log (reason, payload)
+       VALUES ($1, $2::jsonb)`,
       [payload.reason || "save", JSON.stringify({
         version: payload.version,
         updated_at: payload.updated_at,
         reason: payload.reason || "",
+        payloadSizeMB: size,
         counts: {
           diwan: Array.isArray(payload.diwan) ? payload.diwan.length : 0,
           jahaat: Array.isArray(payload.jahaat) ? payload.jahaat.length : 0,
-          audit: Array.isArray(payload.audit) ? payload.audit.length : 0
+          audit: Array.isArray(payload.audit) ? payload.audit.length : 0,
+          docsKeys: payload.docs && typeof payload.docs === "object" ? Object.keys(payload.docs).length : 0
         }
       })]
     );
 
-    await pool.query("COMMIT");
+    await client.query("COMMIT");
 
-    res.json({ ok: true, saved_at: new Date().toISOString() });
+    res.json({
+      ok: true,
+      saved_at: new Date().toISOString(),
+      payloadSizeMB: size,
+      counts: {
+        diwan: Array.isArray(payload.diwan) ? payload.diwan.length : 0,
+        jahaat: Array.isArray(payload.jahaat) ? payload.jahaat.length : 0
+      }
+    });
   } catch (err) {
-    await pool.query("ROLLBACK").catch(() => {});
-    console.error(err);
-    res.status(500).json({ ok: false, error: "SAVE_FAILED" });
+    try { await client.query("ROLLBACK"); } catch {}
+    console.error("SAVE ERROR:", {
+      message: err.message,
+      code: err.code,
+      detail: err.detail,
+      hint: err.hint,
+      stack: err.stack
+    });
+    res.status(500).json({
+      ok: false,
+      error: "SAVE_FAILED",
+      message: err.message,
+      code: err.code || null,
+      detail: err.detail || null,
+      hint: err.hint || null
+    });
+  } finally {
+    client.release();
   }
 });
 
@@ -131,22 +188,22 @@ app.get("/api/export", async (req, res) => {
     res.setHeader("Content-Disposition", "attachment; filename=contracts-system-backup.json");
     res.send(JSON.stringify(r.rows[0]?.data || {}, null, 2));
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ ok: false, error: "EXPORT_FAILED" });
+    console.error("EXPORT ERROR:", err);
+    res.status(500).json({ ok: false, error: "EXPORT_FAILED", message: err.message });
   }
 });
 
 app.post("/api/import", async (req, res) => {
   try {
-    const payload = req.body || {};
+    const payload = sanitizeForJsonb(req.body || {});
     await pool.query(
       `UPDATE system_state SET data=$1::jsonb, updated_at=NOW(), reason='manual import' WHERE id=1`,
       [JSON.stringify(payload)]
     );
     res.json({ ok: true });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ ok: false, error: "IMPORT_FAILED" });
+    console.error("IMPORT ERROR:", err);
+    res.status(500).json({ ok: false, error: "IMPORT_FAILED", message: err.message });
   }
 });
 
