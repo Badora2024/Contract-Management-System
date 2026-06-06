@@ -3292,43 +3292,126 @@ textarea[id$="_notes"]::placeholder{
 
 
 /* =====================================================
-   تحديث الصلاحيات والحفظ التلقائي
+   تسجيل الدخول الإجباري + أدوات مسؤول النظام
    ===================================================== */
-button[onclick*="lockEditing"],
-button[onclick*="saveCurrentEdits"]{
-  display:none!important;
+.system-login-modal{
+  position:fixed!important; inset:0!important; z-index:999999!important;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(4,13,27,.92); backdrop-filter:blur(8px);
+  direction:rtl; font-family:'Cairo',Tahoma,Arial,sans-serif;
 }
-button[onclick*="showAuditLog"],
-button[onclick*="showPermissionsScreen"]{
-  display:none!important;
+.system-login-modal:not(.show){display:none!important;}
+.system-login-box{
+  width:min(520px,92vw); border:1px solid var(--gold); border-radius:22px;
+  background:linear-gradient(145deg,#10233b,#08182d); box-shadow:0 24px 80px rgba(0,0,0,.45);
+  color:var(--white); overflow:hidden;
 }
-body.admin-session button[onclick*="showAuditLog"],
-body.admin-session button[onclick*="showPermissionsScreen"]{
-  display:inline-flex!important;
-}
-.contract-selector-note,
-.edit-locked-hint{
-  display:none!important;
-}
-#edit-status-text{
-  min-height:0!important;
-}
-.recovery-stable-note:empty,
-.pay2-final-badge:empty{
-  display:none!important;
-}
+.system-login-head{padding:22px 24px;border-bottom:1px solid rgba(214,177,47,.35);text-align:center;}
+.system-login-head h3{margin:0;color:var(--gold);font-size:22px;font-weight:900;}
+.system-login-body{padding:22px 24px;}
+.system-login-note{color:var(--text-light);font-size:14px;text-align:center;margin-bottom:16px;}
+#login_username.approval-control,
 #approval_by.approval-control{
-  height:42px!important;
+  width:100%!important;height:44px!important;border:1px solid var(--border)!important;
+  background:var(--input-bg)!important;color:var(--white)!important;border-radius:10px!important;
+  padding:0 12px!important;font-family:'Cairo',Tahoma,Arial,sans-serif!important;font-weight:800!important;
+}
+body:not(.user-logged-in) .container,
+body:not(.user-logged-in) .header{
+  filter:blur(2px); pointer-events:none; user-select:none;
+}
+button[onclick*="lockEditing"],
+button[onclick*="saveCurrentEdits"],
+button[onclick*="showAuditLog"]:not(.admin-only-control),
+button[onclick*="showPermissionsScreen"]:not(.admin-only-control){
+  display:none!important;
+}
+.admin-only-control{display:none!important;}
+body.admin-session .admin-only-control{display:inline-flex!important;}
+.contract-selector-note,.edit-locked-hint{display:none!important;}
+#edit-status-text{min-height:0!important;}
+body:not(.admin-session) #audit-panel,
+body:not(.admin-session) #permissions-panel{display:none!important;}
+
+
+/* =====================================================
+   إصلاح ظهور اسم المستخدم داخل بحث العقود ومنع القوائم تحت شاشة الدخول
+   ===================================================== */
+body.login-required .contract-picker-panel,
+body.login-required .contract-picker-dropdown,
+body.login-required #contract-picker-panel{
+  display:none!important;
+}
+#search-input{
+  direction:rtl!important;
+  text-align:right!important;
+}
+#search-input:-webkit-autofill,
+#search-input:-webkit-autofill:hover,
+#search-input:-webkit-autofill:focus{
+  -webkit-box-shadow:0 0 0 1000px var(--input-bg) inset!important;
+  -webkit-text-fill-color:var(--white)!important;
+}
+.system-login-modal.show{
+  display:flex!important;
+}
+body.login-required .system-login-modal{
+  display:flex!important;
+}
+body.user-logged-in .system-login-modal{
+  display:none!important;
+}
+
+
+/* =====================================================
+   تصحيح نهائي: شاشة الدخول الأولى اسم مستخدم + رمز فقط
+   ===================================================== */
+#approval-modal .approval-note,
+#approval-modal #approval_reason,
+#approval-modal label[for="approval_reason"],
+#approval-modal .form-group:has(#approval_reason),
+#approval-modal #approval-cancel-btn,
+#approval-modal .approval-close{
+  display:none!important;
+}
+#approval-modal .approval-box{
+  max-width:560px!important;
+}
+#approval-modal .approval-head h3{
+  width:100%!important;
+  text-align:center!important;
+  color:var(--gold)!important;
+}
+#approval-modal #approval_by{
+  width:100%!important;
+  height:44px!important;
   border:1px solid var(--border)!important;
   background:var(--input-bg)!important;
   color:var(--white)!important;
   border-radius:10px!important;
   padding:0 12px!important;
-  font-family:'Cairo',sans-serif!important;
-  font-weight:800!important;
+  font-family:'Cairo',Tahoma,Arial,sans-serif!important;
+  font-weight:900!important;
 }
-body:not(.admin-session) #audit-panel,
-body:not(.admin-session) #permissions-panel{
+#approval-modal #approval_code{
+  width:100%!important;
+}
+body.login-required #approval-modal{
+  display:flex!important;
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+}
+body.login-required #approval-modal.show{
+  display:flex!important;
+}
+body.login-required .container,
+body.login-required .header{
+  filter:blur(2px);
+  pointer-events:none;
+  user-select:none;
+}
+body.user-logged-in #approval-modal{
   display:none!important;
 }
 
@@ -3387,7 +3470,9 @@ body:not(.admin-session) #permissions-panel{
           <div class="edit-locked-hint"></div>
         </div>
         <div class="ep-actions">
-          <button type="button" class="btn-secondary btn-small approval-control" onclick="openApprovalModal('تعديل النظام بالكامل')">👤 دخول المستخدم / فتح التعديل</button>
+          <button type="button" class="btn-secondary btn-small approval-control" onclick="openSystemLoginModal()">👤 دخول المستخدم / فتح التعديل</button>
+          <button type="button" class="btn-secondary btn-small admin-only-control" onclick="showAuditLog()">📋 سجل التعديلات</button>
+          <button type="button" class="btn-secondary btn-small admin-only-control" onclick="showPermissionsScreen()">👥 المستخدمون والصلاحيات</button>
           <button type="button" class="btn-secondary btn-small approval-control" onclick="lockEditing()">🔒 قفل التعديل</button>
           <button type="button" class="btn-secondary btn-small approval-control" onclick="saveCurrentEdits()">✅ حفظ التعديل</button>
           <button type="button" class="btn-secondary btn-small approval-control" onclick="showAuditLog()">📋 سجل التعديلات</button>
@@ -3409,7 +3494,7 @@ body:not(.admin-session) #permissions-panel{
         <option value="diwan">ميزانية الديوان</option>
         <option value="jahaat">ميزانية الجهات</option>
       </select>
-      <input type="text" id="search-input" placeholder="ابحث بالاسم أو رقم العقد أو الشركة..." oninput="filterContracts(this.value)">
+      <input type="text" id="search-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="ابحث بالاسم أو رقم العقد أو الشركة..." oninput="filterContracts(this.value)">
       <div class="contract-select-shell contract-dd-shell">
         <select id="contract-select" class="contract-select-full" onchange="selectContractFromDropdown(this.value)" style="display:none!important"></select>
         <button type="button" id="contract-dd-button" class="contract-dd-button" onclick="toggleContractDropdown()">
@@ -3630,13 +3715,11 @@ body:not(.admin-session) #permissions-panel{
 <div class="approval-modal no-print" id="approval-modal">
   <div class="approval-box">
     <div class="approval-head">
-      <h3>دخول المستخدم واعتماد التعديل</h3>
+      <h3>تسجيل الدخول إلى نظام إدارة العقود</h3>
       <button type="button" class="approval-close approval-control" onclick="closeApprovalModal()">×</button>
     </div>
     <div class="approval-body">
-      <div class="approval-note">
-        يتم الدخول باختيار اسم المستخدم وإدخال رمز الدخول وسبب التعديل. بعد الاعتماد تفتح صلاحية التعديل على النظام بالكامل، ويمكن التنقل بين جميع العقود دون طلب موافقة جديدة. يتم تسجيل العملية في سجل التعديلات داخل المتصفح.
-      </div>
+      
       <div class="form-group">
         <label>اسم المستخدم</label>
         <select id="approval_by" class="approval-control"></select>
@@ -3653,7 +3736,7 @@ body:not(.admin-session) #permissions-panel{
       <div id="approval-error" class="approval-error"></div>
       <div class="actions-bar" style="margin-top:2px;">
         <button type="button" class="btn-secondary approval-control" id="approval-cancel-btn">إلغاء</button>
-        <button type="button" class="btn-primary approval-control" id="approval-submit-btn">دخول وفتح التعديل</button>
+        <button type="button" class="btn-primary approval-control" id="approval-submit-btn">دخول النظام</button>
       </div>
     </div>
   </div>
@@ -3662,7 +3745,7 @@ body:not(.admin-session) #permissions-panel{
 <div class="audit-panel no-print" id="audit-panel">
   <div class="audit-box">
     <div class="approval-head">
-      <h3>📋 سجل التعديلات والتعديلات</h3>
+      <h3>📋 سجل التعديلات</h3>
       <button type="button" class="approval-close approval-control" onclick="closeAuditLog()">×</button>
     </div>
     <div class="audit-table-wrap" id="audit-table-wrap"></div>
@@ -3690,13 +3773,13 @@ body:not(.admin-session) #permissions-panel{
           <button type="button" class="btn-primary btn-small approval-control" onclick="savePermissionsUsers()">💾 حفظ الصلاحيات</button>
           <button type="button" class="btn-secondary btn-small approval-control" onclick="exportPermissionsUsers()">📤 تصدير الصلاحيات</button>
         </div>
-        
+        <div style="font-size:11px;color:var(--text-light);">المستخدم الافتراضي: <b style="color:var(--gold);">admin</b> / رمز الدخول: <b style="color:var(--gold);">CSB-2026</b></div>
       </div>
       <div style="overflow:auto;">
         <table class="permissions-table">
           <thead>
             <tr>
-              <th>م</th><th>اسم المستخدم</th><th>الاسم الظاهر</th><th>المسمى/الإدارة</th><th>رمز الموافقة</th><th>الحالة</th>
+              <th>م</th><th>اسم المستخدم</th><th>الاسم الظاهر</th><th>المسمى/الإدارة</th><th>رمز الدخول</th><th>الحالة</th>
               <th>عرض</th><th>تعديل</th><th>إضافة</th><th>حذف</th><th>طباعة</th><th>تصدير</th><th>اعتماد التعديل</th><th>إدارة المستخدمين</th><th>مدير نظام</th><th>إجراء</th>
             </tr>
           </thead>
@@ -3708,6 +3791,30 @@ body:not(.admin-session) #permissions-panel{
 </div>
 
 <div class="toast" id="toast"><span id="toast-icon">✅</span><span id="toast-msg">تم</span></div>
+
+
+<div class="system-login-modal no-print" id="system-login-modal">
+  <div class="system-login-box">
+    <div class="system-login-head">
+      <h3>تسجيل الدخول إلى نظام إدارة العقود</h3>
+    </div>
+    <div class="system-login-body">
+      <div class="system-login-note">اختر اسم المستخدم وأدخل رمز الدخول للمتابعة.</div>
+      <div class="form-group">
+        <label>اسم المستخدم</label>
+        <select id="login_username" class="approval-control"></select>
+      </div>
+      <div class="form-group">
+        <label>رمز الدخول</label>
+        <input type="password" id="login_code" class="approval-control" autocomplete="off" dir="ltr" placeholder="رمز الدخول">
+      </div>
+      <div id="login-error" class="approval-error"></div>
+      <div class="actions-bar" style="margin-top:2px;">
+        <button type="button" class="btn-primary approval-control" onclick="systemLoginSubmit()">دخول النظام</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script>
 // ─── DATA ───────────────────────────────────────────
@@ -3765,7 +3872,7 @@ function onAmountInput(el) {
 
 // ─── EDIT APPROVAL STATE ───────────────────────────
 // ملاحظة مهمة: هذا الملف HTML مستقل، لذلك الحماية هنا حماية تشغيلية داخل الشاشة وليست بديلاً عن صلاحيات خادم/قاعدة بيانات.
-// يمكن تغيير رمز الموافقة من السطر التالي عند الحاجة.
+// يمكن تغيير رمز الدخول من السطر التالي عند الحاجة.
 const EDIT_APPROVAL_CODE = 'CSB-2026';
 const EDIT_APPROVAL_CODES = ['CSB-2026', '2026'];
 const USERS_PERMISSIONS_KEY = 'csb_contract_users_permissions_v1';
@@ -3793,6 +3900,7 @@ async function loadSharedSystemData() {
     if(!res.ok) throw new Error('HTTP ' + res.status);
     const payload = await res.json();
 
+    // أول تشغيل: لا توجد بيانات في PostgreSQL، نستخدم البيانات المدمجة ثم نحفظها تلقائيًا.
     if(!payload || !payload.data || !payload.data.version) {
       try { SHARED_AUDIT_LOG = JSON.parse(localStorage.getItem(AUDIT_LOG_KEY) || '[]'); } catch(e) { SHARED_AUDIT_LOG = []; }
       SHARED_MODE_READY = true;
@@ -5148,7 +5256,7 @@ function renderPermissionsUsersTable() {
       <td><input type="text" value="${escapeHtml(u.username || '')}" data-user-field="username" placeholder="username"></td>
       <td><input type="text" value="${escapeHtml(u.displayName || '')}" data-user-field="displayName" placeholder="الاسم الظاهر"></td>
       <td><input type="text" value="${escapeHtml(u.title || '')}" data-user-field="title" placeholder="المسمى / الإدارة"></td>
-      <td><input type="password" value="${escapeHtml(u.approvalCode || '')}" data-user-field="approvalCode" placeholder="رمز الموافقة"></td>
+      <td><input type="password" value="${escapeHtml(u.approvalCode || '')}" data-user-field="approvalCode" placeholder="رمز الدخول"></td>
       <td style="text-align:center;"><select data-user-field="active"><option value="true" ${u.active!==false?'selected':''}>مفعل</option><option value="false" ${u.active===false?'selected':''}>موقوف</option></select></td>
       ${perms.map(k => `<td><label class="perm-check"><input type="checkbox" data-user-perm="${k}" ${checked(k)}></label></td>`).join('')}
       <td style="text-align:center;"><button type="button" class="btn-danger btn-small approval-control" onclick="deletePermissionUser(${i})">حذف</button></td>
@@ -5253,7 +5361,7 @@ function exportAuditLog() {
   const blob = new Blob([JSON.stringify(log, null, 2)], {type:'application/json;charset=utf-8'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'سجل_موافقات_تعديل_العقود.json';
+  a.download = 'سجل_تعديلات_العقود.json';
   a.click();
   showToast('تم تصدير سجل التعديلات', '💾');
 }
@@ -5631,61 +5739,408 @@ console.log('PATCH_BUDGET_UNDER_CONTRACT_DYNAMIC_TENDER');
 console.log('PATCH_BUDGET_UNDER_HEADER_CONTRACT_NUMBER');
 
 /* =====================================================
-   PATCH: صلاحيات المستخدمين + حفظ Enter + طباعة الشعار من أول مرة
+   PATCH: Login required + Admin controls + Enter save
    ===================================================== */
 (function(){
-  function getUserForSession(){
-    if(!window.currentApproval) return null;
-    return findPermissionUser(currentApproval.username || currentApproval.by);
+  let SYSTEM_USER = null;
+
+  function usersList(){
+    try { return getPermissionsUsers().filter(u => u && u.active !== false); }
+    catch(e){ return []; }
   }
 
+  function fillUsersSelect(selectId){
+    const sel = document.getElementById(selectId);
+    if(!sel) return;
+    const users = usersList();
+    sel.innerHTML = '<option value="">اختر اسم المستخدم...</option>' + users.map(u =>
+      `<option value="${escapeHtml(u.username || '')}">${escapeHtml((u.displayName || u.username || '') + ' — ' + (u.title || ''))}</option>`
+    ).join('');
+  }
+
+  window.openSystemLoginModal = function(){
+    fillUsersSelect('login_username');
+    const modal = document.getElementById('system-login-modal');
+    const err = document.getElementById('login-error');
+    const code = document.getElementById('login_code');
+    if(err) { err.textContent=''; err.classList.remove('show'); }
+    if(code) code.value = '';
+    modal?.classList.add('show');
+    setTimeout(() => document.getElementById('login_username')?.focus(), 80);
+  };
+
+  window.systemLoginSubmit = function(){
+    const username = (document.getElementById('login_username')?.value || '').trim();
+    const code = (document.getElementById('login_code')?.value || '').trim();
+    const err = document.getElementById('login-error');
+
+    function showLoginErr(msg){
+      if(err){ err.textContent = msg; err.classList.add('show'); }
+    }
+
+    if(!username){ showLoginErr('يرجى اختيار اسم المستخدم.'); return false; }
+    if(!code){ showLoginErr('يرجى إدخال رمز الدخول.'); return false; }
+
+    const user = findPermissionUser(username);
+    if(!user || user.active === false){ showLoginErr('اسم المستخدم غير موجود أو غير مفعل.'); return false; }
+
+    const savedCode = normalizeApprovalCode(user.approvalCode || '');
+    const enteredCode = normalizeApprovalCode(code);
+    if(!savedCode || savedCode !== enteredCode){ showLoginErr('رمز الدخول غير صحيح.'); return false; }
+
+    SYSTEM_USER = user;
+    currentApproval = {
+      by: user.displayName || user.username,
+      username: user.username,
+      reason: 'دخول النظام',
+      action: 'دخول النظام',
+      at: new Date().toISOString(),
+      permissions: user.permissions || {}
+    };
+
+    // فتح التعديل فقط للمستخدم الذي يملك صلاحية تعديل أو اعتماد أو مدير
+    editUnlocked = !!(hasUserPermission(user,'edit') || hasUserPermission(user,'approveEdit') || hasUserPermission(user,'admin'));
+    document.body.classList.add('user-logged-in');
+    document.getElementById('system-login-modal')?.classList.remove('show');
+
+    setEditMode(editUnlocked);
+    updateAdminOnlyControls();
+
+    addAuditEntry('دخول المستخدم إلى النظام');
+    saveSharedSystemData('دخول المستخدم إلى النظام');
+    showToast('تم تسجيل الدخول: ' + (user.displayName || user.username), '👤');
+    return true;
+  };
+
   window.isSystemAdminSession = function(){
-    const u = getUserForSession();
-    return !!(u && u.active && (hasUserPermission(u, 'admin') || hasUserPermission(u, 'manageUsers')));
+    const u = SYSTEM_USER || (currentApproval ? findPermissionUser(currentApproval.username || currentApproval.by) : null);
+    return !!(u && u.active !== false && (hasUserPermission(u,'admin') || hasUserPermission(u,'manageUsers')));
   };
 
   window.updateAdminOnlyControls = function(){
-    document.body.classList.toggle('admin-session', !!window.isSystemAdminSession());
+    const isAdmin = !!window.isSystemAdminSession();
+    document.body.classList.toggle('admin-session', isAdmin);
     document.querySelectorAll('button').forEach(btn => {
       const oc = btn.getAttribute('onclick') || '';
       if(oc.includes('showAuditLog')) btn.textContent = '📋 سجل التعديلات';
       if(oc.includes('showPermissionsScreen')) btn.textContent = '👥 المستخدمون والصلاحيات';
-      if(oc.includes('openApprovalModal')) btn.textContent = '👤 دخول المستخدم / فتح التعديل';
+      if(oc.includes('openSystemLoginModal') || oc.includes('openApprovalModal')) btn.textContent = '👤 دخول المستخدم / فتح التعديل';
     });
-    const auditTitle = document.querySelector('#audit-panel .approval-head h3');
-    if(auditTitle) auditTitle.textContent = '📋 سجل التعديلات';
+    const h = document.querySelector('#audit-panel .approval-head h3');
+    if(h) h.textContent = '📋 سجل التعديلات';
   };
 
-  const originalRenderApprovalUsersList = window.renderApprovalUsersList;
+  const oldRenderApprovalUsersList = window.renderApprovalUsersList;
   window.renderApprovalUsersList = function(){
-    const sel = document.getElementById('approval_by');
-    if(sel && sel.tagName === 'SELECT'){
-      const users = getPermissionsUsers().filter(u => u.active);
-      sel.innerHTML = '<option value="">اختر اسم المستخدم...</option>' + users.map(u =>
-        `<option value="${escapeHtml(u.username || '')}">${escapeHtml((u.displayName || u.username || '') + ' — ' + (u.title || u.username || ''))}</option>`
-      ).join('');
+    fillUsersSelect('approval_by');
+    if(typeof oldRenderApprovalUsersList === 'function'){
+      try { oldRenderApprovalUsersList(); } catch(e){}
+    }
+  };
+
+  window.openApprovalModal = function(actionName){
+    openSystemLoginModal();
+  };
+
+  const oldSetEditMode = window.setEditMode;
+  window.setEditMode = function(unlocked){
+    if(typeof oldSetEditMode === 'function') oldSetEditMode(unlocked);
+    const badge = document.getElementById('edit-status-badge');
+    const txt = document.getElementById('edit-status-text');
+    if(badge){
+      badge.textContent = editUnlocked ? 'مفتوح للتعديل' : 'مغلق';
+      badge.classList.toggle('unlocked', !!editUnlocked);
+    }
+    if(txt){
+      txt.textContent = currentApproval
+        ? `مفتوح بواسطة: ${currentApproval.by} — السبب: ${currentApproval.reason}`
+        : '';
+    }
+    updateAdminOnlyControls();
+  };
+
+  window.showAuditLog = function(){
+    if(!isSystemAdminSession()){
+      showToast('سجل التعديلات يظهر فقط لمسؤول النظام', '⛔');
       return;
     }
-    if(typeof originalRenderApprovalUsersList === 'function') originalRenderApprovalUsersList();
+    const panel = document.getElementById('audit-panel');
+    const wrap = document.getElementById('audit-table-wrap');
+    if(!panel || !wrap) return;
+    const log = getAuditLog();
+    if(!log.length){
+      wrap.innerHTML = '<div style="padding:22px;text-align:center;color:var(--text-light);font-size:13px;">لا يوجد سجل تعديلات حتى الآن.</div>';
+    }else{
+      wrap.innerHTML = `<table class="audit-table"><thead><tr>
+        <th>التاريخ والوقت</th><th>الإجراء</th><th>الميزانية</th><th>رقم العقد</th><th>موضوع العقد</th><th>المستخدم</th><th>سبب التعديل</th>
+      </tr></thead><tbody>${log.map(r => `<tr>
+        <td>${r.time || '—'}</td><td>${r.action || '—'}</td><td>${r.budget || '—'}</td><td>${r.contract || '—'}</td><td>${r.subject || '—'}</td><td>${r.approvedBy || '—'}</td><td>${r.reason || '—'}</td>
+      </tr>`).join('')}</tbody></table>`;
+    }
+    document.querySelector('#audit-panel .approval-head h3').textContent = '📋 سجل التعديلات';
+    panel.classList.add('show');
   };
 
-  const originalOpenApprovalModal = window.openApprovalModal;
-  window.openApprovalModal = function(actionName){
-    pendingApprovalAction = actionName || 'تعديل النظام بالكامل';
+  window.showPermissionsScreen = function(){
+    if(!isSystemAdminSession()){
+      showToast('المستخدمون والصلاحيات تظهر فقط لمسؤول النظام', '⛔');
+      return;
+    }
+    renderPermissionsUsersTable();
+    document.getElementById('permissions-panel')?.classList.add('show');
+  };
+
+  const oldSavePermissionsUsers = window.savePermissionsUsers;
+  window.savePermissionsUsers = function(){
+    if(!isSystemAdminSession()){
+      showToast('لا تملك صلاحية إدارة المستخدمين', '⛔');
+      return;
+    }
+    return oldSavePermissionsUsers();
+  };
+
+  function controlsForEnter(){
+    return Array.from(document.querySelectorAll(
+      '#tab-entry input:not([type="hidden"]),#tab-entry select,#tab-entry textarea,' +
+      '#tab-payments input:not([type="hidden"]),#tab-payments select,#tab-payments textarea'
+    )).filter(el => el.offsetParent !== null && !el.disabled && !el.readOnly && !el.classList.contains('approval-control'));
+  }
+
+  let enterBusy = false;
+  async function saveAndNext(el){
+    if(!editUnlocked || enterBusy) return;
+    enterBusy = true;
+    try{ if(typeof saveCurrentEdits === 'function') await saveCurrentEdits(); }
+    catch(e){ console.error(e); }
+    finally{ enterBusy = false; }
+
+    const arr = controlsForEnter();
+    const i = arr.indexOf(el);
+    const next = arr[i+1] || arr[0];
+    if(next) setTimeout(() => { next.focus(); if(next.select && next.tagName !== 'TEXTAREA') next.select(); }, 60);
+  }
+
+  document.addEventListener('keydown', function(e){
+    const el = e.target;
+    if(!el || !['INPUT','SELECT','TEXTAREA'].includes(el.tagName)) return;
+    if(el.classList.contains('approval-control')) return;
+    if(e.key !== 'Enter' || e.shiftKey) return;
+    if(!el.closest('#tab-entry,#tab-payments')) return;
+    e.preventDefault();
+    saveAndNext(el);
+  }, true);
+
+  function waitPrintImages(timeout=2500){
+    try{
+      if(typeof ensurePrintPaymentsSection === 'function') ensurePrintPaymentsSection();
+      const imgs = Array.from((document.getElementById('print-payments-section') || document).querySelectorAll('img'));
+      if(!imgs.length) return Promise.resolve();
+      return new Promise(resolve => {
+        let done=false, left=imgs.length;
+        const finish=()=>{ if(!done){done=true;resolve();} };
+        const tick=()=>{ left--; if(left<=0) finish(); };
+        imgs.forEach(img => {
+          if(img.complete && img.naturalWidth) tick();
+          else{
+            img.addEventListener('load', tick, {once:true});
+            img.addEventListener('error', tick, {once:true});
+            const pre = new Image(); pre.onload=tick; pre.onerror=tick; pre.src=img.src;
+          }
+        });
+        setTimeout(finish, timeout);
+      });
+    }catch(e){ return Promise.resolve(); }
+  }
+
+  const nativePrint = window.print.bind(window);
+  window.print = function(){
+    waitPrintImages().then(() => setTimeout(() => nativePrint(), 250));
+  };
+
+  const oldOnload = window.onload;
+  window.onload = async function(ev){
+    if(typeof oldOnload === 'function') await oldOnload.call(window, ev);
+    lockEditing(true);
+    updateAdminOnlyControls();
+    fillUsersSelect('login_username');
+    fillUsersSelect('approval_by');
+    setTimeout(openSystemLoginModal, 120);
+  };
+})();
+
+
+/* =====================================================
+   PATCH: منع انتقال اسم المستخدم لخانة البحث وإغلاق قائمة العقود بعد الدخول
+   ===================================================== */
+(function(){
+  function clearContractSearchGlitch(){
+    const s = document.getElementById('search-input');
+    if(s){
+      s.value = '';
+      s.setAttribute('autocomplete','off');
+      s.setAttribute('name','contract_search_no_autofill_' + Date.now());
+      try { filterContracts(''); } catch(e) {}
+    }
+    try { closeContractPicker(); } catch(e) {}
+    const panel = document.getElementById('contract-picker-panel');
+    if(panel) panel.classList.remove('show');
+  }
+
+  function markLoginRequired(){
+    if(!document.body.classList.contains('user-logged-in')){
+      document.body.classList.add('login-required');
+    }
+  }
+
+  // لا تترك النظام مفتوحًا تلقائيًا عند تحميل الصفحة
+  const oldOpenSystemLoginModal = window.openSystemLoginModal;
+  window.openSystemLoginModal = function(){
+    document.body.classList.remove('user-logged-in');
+    document.body.classList.add('login-required');
+    clearContractSearchGlitch();
+    if(typeof oldOpenSystemLoginModal === 'function'){
+      oldOpenSystemLoginModal();
+    }else{
+      const modal = document.getElementById('system-login-modal');
+      if(modal) modal.classList.add('show');
+    }
+  };
+
+  const oldSystemLoginSubmit = window.systemLoginSubmit;
+  window.systemLoginSubmit = function(){
+    const ok = typeof oldSystemLoginSubmit === 'function' ? oldSystemLoginSubmit() : false;
+    if(ok !== false){
+      document.body.classList.remove('login-required');
+      document.body.classList.add('user-logged-in');
+      setTimeout(clearContractSearchGlitch, 50);
+      setTimeout(clearContractSearchGlitch, 300);
+    }
+    return ok;
+  };
+
+  // عند فتح قائمة العقود لا تستخدم أي قيمة جاءت بالخطأ من autofill
+  const oldToggleContractPicker = window.toggleContractPicker;
+  if(typeof oldToggleContractPicker === 'function'){
+    window.toggleContractPicker = function(){
+      const s = document.getElementById('search-input');
+      if(s && /^[A-Za-z0-9._-]{2,30}$/.test(String(s.value || '').trim())){
+        // إذا كانت القيمة تبدو كاسم مستخدم وليست بحث عقد، امسحها
+        const v = String(s.value || '').trim();
+        try{
+          const u = findPermissionUser(v);
+          if(u) {
+            s.value = '';
+            filterContracts('');
+          }
+        }catch(e){}
+      }
+      return oldToggleContractPicker.apply(this, arguments);
+    };
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    markLoginRequired();
+    setTimeout(() => {
+      const modal = document.getElementById('system-login-modal');
+      if(!document.body.classList.contains('user-logged-in') && modal){
+        modal.classList.add('show');
+        clearContractSearchGlitch();
+      }
+    }, 200);
+  });
+
+  window.addEventListener('load', function(){
+    markLoginRequired();
+    setTimeout(() => {
+      if(!document.body.classList.contains('user-logged-in')){
+        const modal = document.getElementById('system-login-modal');
+        if(modal) modal.classList.add('show');
+      }
+      clearContractSearchGlitch();
+    }, 600);
+  });
+})();
+
+
+/* =====================================================
+   PATCH: approval-modal = شاشة دخول فقط
+   ===================================================== */
+(function(){
+  let ACTIVE_LOGIN_USER = null;
+
+  function activeUsers(){
+    try { return getPermissionsUsers().filter(u => u && u.active !== false); }
+    catch(e){ return []; }
+  }
+
+  function fillApprovalUserDropdown(){
+    const sel = document.getElementById('approval_by');
+    if(!sel) return;
+    if(sel.tagName !== 'SELECT'){
+      const parent = sel.parentElement;
+      const newSel = document.createElement('select');
+      newSel.id = 'approval_by';
+      newSel.className = sel.className || 'approval-control';
+      parent.replaceChild(newSel, sel);
+    }
+    const ddl = document.getElementById('approval_by');
+    const users = activeUsers();
+    ddl.innerHTML = '<option value="">اختر اسم المستخدم...</option>' + users.map(u =>
+      `<option value="${escapeHtml(u.username || '')}">${escapeHtml((u.displayName || u.username || '') + (u.title ? ' — ' + u.title : ''))}</option>`
+    ).join('');
+  }
+
+  function cleanApprovalModalAsLogin(){
     const modal = document.getElementById('approval-modal');
     if(!modal) return;
-    bindApprovalDialogEvents();
-    renderApprovalUsersList();
 
+    const title = modal.querySelector('.approval-head h3');
+    if(title) title.textContent = 'تسجيل الدخول إلى نظام إدارة العقود';
+
+    modal.querySelectorAll('.approval-note,.approval-close,#approval-cancel-btn').forEach(el => el.style.display = 'none');
+
+    const reason = document.getElementById('approval_reason');
+    if(reason){
+      const fg = reason.closest('.form-group');
+      if(fg) fg.style.display = 'none';
+      reason.value = 'دخول النظام';
+    }
+
+    const codeLabel = document.querySelector('label[for="approval_code"]') || document.querySelector('#approval_code')?.closest('.form-group')?.querySelector('label');
+    if(codeLabel) codeLabel.textContent = 'رمز الدخول';
+
+    const submit = document.getElementById('approval-submit-btn');
+    if(submit) submit.textContent = 'دخول النظام';
+
+    fillApprovalUserDropdown();
+  }
+
+  window.openSystemLoginModal = function(){
+    document.body.classList.remove('user-logged-in');
+    document.body.classList.add('login-required');
+    cleanApprovalModalAsLogin();
+
+    const modal = document.getElementById('approval-modal');
     const by = document.getElementById('approval_by');
     const code = document.getElementById('approval_code');
     const reason = document.getElementById('approval_reason');
+    const err = document.getElementById('approval-error');
+
     if(by) by.value = '';
     if(code) code.value = '';
-    if(reason) reason.value = '';
-    showApprovalError('');
-    modal.classList.add('show');
+    if(reason) reason.value = 'دخول النظام';
+    if(err){ err.textContent = ''; err.classList.remove('show'); }
+
+    modal?.classList.add('show');
     setTimeout(() => by?.focus(), 80);
+  };
+
+  window.openApprovalModal = function(){
+    openSystemLoginModal();
+  };
+
+  window.renderApprovalUsersList = function(){
+    fillApprovalUserDropdown();
   };
 
   window.approveEditing = function(evt){
@@ -5693,11 +6148,8 @@ console.log('PATCH_BUDGET_UNDER_HEADER_CONTRACT_NUMBER');
 
     const byEl = document.getElementById('approval_by');
     const codeEl = document.getElementById('approval_code');
-    const reasonEl = document.getElementById('approval_reason');
-
     const username = (byEl?.value || '').trim();
     const code = (codeEl?.value || '').trim();
-    const reason = (reasonEl?.value || '').trim();
 
     if(!username){
       showApprovalError('يرجى اختيار اسم المستخدم.');
@@ -5709,204 +6161,87 @@ console.log('PATCH_BUDGET_UNDER_HEADER_CONTRACT_NUMBER');
       codeEl?.focus();
       return false;
     }
-    if(!reason){
-      showApprovalError('يرجى إدخال سبب التعديل قبل فتح الصلاحية.');
-      reasonEl?.focus();
-      return false;
-    }
 
     const user = findPermissionUser(username);
-    if(!user || !user.active){
+    if(!user || user.active === false){
       showApprovalError('اسم المستخدم غير موجود أو غير مفعل.');
       return false;
     }
 
-    const userCode = normalizeApprovalCode(user.approvalCode || '');
-    const entered = normalizeApprovalCode(code);
-    if(!userCode || userCode !== entered){
-      showApprovalError('رمز الدخول غير صحيح لهذا المستخدم.');
+    const savedCode = normalizeApprovalCode(user.approvalCode || '');
+    const enteredCode = normalizeApprovalCode(code);
+    if(!savedCode || savedCode !== enteredCode){
+      showApprovalError('رمز الدخول غير صحيح.');
       codeEl?.focus();
       codeEl?.select?.();
       return false;
     }
 
-    if(!hasUserPermission(user, 'approveEdit') && !hasUserPermission(user, 'admin')){
-      showApprovalError('هذا المستخدم لا يملك صلاحية اعتماد فتح التعديل.');
-      return false;
-    }
-
+    ACTIVE_LOGIN_USER = user;
     currentApproval = {
       by: user.displayName || user.username,
       username: user.username,
-      reason,
-      action: pendingApprovalAction,
+      reason: 'دخول النظام',
+      action: 'دخول النظام',
       at: new Date().toISOString(),
       permissions: user.permissions || {}
     };
 
-    editUnlocked = true;
-    closeApprovalModal();
-    setEditMode(true);
+    editUnlocked = !!(hasUserPermission(user,'edit') || hasUserPermission(user,'approveEdit') || hasUserPermission(user,'admin'));
+    document.body.classList.remove('login-required');
+    document.body.classList.add('user-logged-in');
+    document.getElementById('approval-modal')?.classList.remove('show');
+
+    setEditMode(editUnlocked);
     updateAdminOnlyControls();
-    addAuditEntry('فتح صلاحية تعديل النظام بالكامل');
-    saveSharedSystemData('فتح صلاحية تعديل النظام بالكامل');
-    showToast('تم دخول المستخدم وفتح صلاحية التعديل', '🔓');
-    setTimeout(() => document.getElementById('contract_subject')?.focus(), 120);
+
+    try {
+      const search = document.getElementById('search-input');
+      if(search){ search.value = ''; search.setAttribute('autocomplete','off'); filterContracts(''); }
+      closeContractPicker?.();
+    } catch(e){}
+
+    addAuditEntry('دخول المستخدم إلى النظام');
+    saveSharedSystemData('دخول المستخدم إلى النظام');
+    showToast('تم تسجيل الدخول: ' + (user.displayName || user.username), '👤');
     return true;
   };
 
-  const originalSetEditMode = window.setEditMode;
-  window.setEditMode = function(unlocked){
-    if(typeof originalSetEditMode === 'function') originalSetEditMode(unlocked);
-    const txt = document.getElementById('edit-status-text');
-    if(txt){
-      txt.textContent = (editUnlocked && currentApproval)
-        ? `مفتوح بواسطة: ${currentApproval.by} — السبب: ${currentApproval.reason}`
-        : '';
-    }
-    updateAdminOnlyControls();
+  window.isSystemAdminSession = function(){
+    const u = ACTIVE_LOGIN_USER || (currentApproval ? findPermissionUser(currentApproval.username || currentApproval.by) : null);
+    return !!(u && u.active !== false && (hasUserPermission(u,'admin') || hasUserPermission(u,'manageUsers')));
   };
 
-  const originalShowAuditLog = window.showAuditLog;
-  window.showAuditLog = function(){
-    if(!isSystemAdminSession()){
-      showToast('سجل التعديلات يظهر فقط لمسؤول النظام', '⛔');
-      return;
-    }
-    if(typeof originalShowAuditLog === 'function') originalShowAuditLog();
-    const h = document.querySelector('#audit-panel .approval-head h3');
-    if(h) h.textContent = '📋 سجل التعديلات';
-  };
-
-  window.canManageUsersNow = function(){
-    return isSystemAdminSession();
-  };
-
-  const originalShowPermissionsScreen = window.showPermissionsScreen;
-  window.showPermissionsScreen = function(){
-    if(!isSystemAdminSession()){
-      showToast('المستخدمون والصلاحيات تظهر فقط لمسؤول النظام', '⛔');
-      return;
-    }
-    renderPermissionsUsersTable();
-    document.getElementById('permissions-panel')?.classList.add('show');
-  };
-
-  const originalSavePermissionsUsers = window.savePermissionsUsers;
-  window.savePermissionsUsers = function(){
-    if(!isSystemAdminSession()){
-      showToast('لا تملك صلاحية إدارة المستخدمين', '⛔');
-      return;
-    }
-    return originalSavePermissionsUsers();
-  };
-
-  function getFocusableEditControls(){
-    return Array.from(document.querySelectorAll(
-      '#tab-entry input:not([type="hidden"]),#tab-entry select,#tab-entry textarea,' +
-      '#tab-payments input:not([type="hidden"]),#tab-payments select,#tab-payments textarea'
-    )).filter(el =>
-      el.offsetParent !== null &&
-      !el.disabled &&
-      !el.readOnly &&
-      !el.classList.contains('approval-control')
-    );
-  }
-
-  let enterSaveBusy = false;
-  async function saveOnEnterAndMoveNext(currentEl){
-    if(!editUnlocked) return;
-    if(enterSaveBusy) return;
-    enterSaveBusy = true;
-    try{
-      if(typeof saveCurrentEdits === 'function') await saveCurrentEdits();
-    }catch(e){
-      console.error('Enter save failed:', e);
-    }finally{
-      enterSaveBusy = false;
-    }
-
-    const controls = getFocusableEditControls();
-    const idx = controls.indexOf(currentEl);
-    const next = controls[idx + 1] || controls[0];
-    if(next){
-      setTimeout(() => {
-        next.focus();
-        if(typeof next.select === 'function' && next.tagName !== 'TEXTAREA') next.select();
-      }, 60);
-    }
-  }
-
-  document.addEventListener('keydown', function(e){
-    const el = e.target;
-    if(!el || !['INPUT','SELECT','TEXTAREA'].includes(el.tagName)) return;
-    if(el.classList.contains('approval-control')) return;
-    if(e.key !== 'Enter') return;
-    if(e.shiftKey) return;
-
-    const inside = el.closest('#tab-entry,#tab-payments');
-    if(!inside) return;
-
-    e.preventDefault();
-    saveOnEnterAndMoveNext(el);
-  }, true);
-
-  // تجهيز صور الهيدر قبل الطباعة حتى تظهر من أول مرة
-  function waitImagesInPrintSection(timeoutMs=1800){
-    try{
-      ensurePrintPaymentsSection();
-      const sec = document.getElementById('print-payments-section');
-      const imgs = Array.from(sec?.querySelectorAll('img') || []);
-      if(!imgs.length) return Promise.resolve();
-      return new Promise(resolve => {
-        let done = false;
-        let left = imgs.length;
-        const finish = () => { if(!done){ done = true; resolve(); } };
-        const tick = () => { left--; if(left <= 0) finish(); };
-        imgs.forEach(img => {
-          if(img.complete && img.naturalWidth !== 0) tick();
-          else {
-            img.addEventListener('load', tick, {once:true});
-            img.addEventListener('error', tick, {once:true});
-            const pre = new Image();
-            pre.onload = tick;
-            pre.onerror = tick;
-            pre.src = img.src;
-          }
-        });
-        setTimeout(finish, timeoutMs);
-      });
-    }catch(e){
-      return Promise.resolve();
-    }
-  }
-
-  const lastPrint = window.print.bind(window);
-  window.print = function(){
-    if(currentApproval) {
-      const u = findPermissionUser(currentApproval.username || currentApproval.by);
-      if(u && !hasUserPermission(u, 'print')) {
-        showToast('المستخدم الحالي لا يملك صلاحية الطباعة', '⛔');
-        return;
-      }
-    }
-    waitImagesInPrintSection(2200).then(() => {
-      setTimeout(() => lastPrint(), 250);
+  const oldUpdateAdminOnlyControls = window.updateAdminOnlyControls;
+  window.updateAdminOnlyControls = function(){
+    const isAdmin = !!window.isSystemAdminSession();
+    document.body.classList.toggle('admin-session', isAdmin);
+    document.querySelectorAll('button').forEach(btn => {
+      const oc = btn.getAttribute('onclick') || '';
+      if(oc.includes('showAuditLog')) btn.textContent = '📋 سجل التعديلات';
+      if(oc.includes('showPermissionsScreen')) btn.textContent = '👥 المستخدمون والصلاحيات';
+      if(oc.includes('openSystemLoginModal') || oc.includes('openApprovalModal')) btn.textContent = '👤 دخول المستخدم / فتح التعديل';
     });
+    if(typeof oldUpdateAdminOnlyControls === 'function'){
+      try { oldUpdateAdminOnlyControls(); } catch(e){}
+    }
+  };
+
+  // افتح شاشة الدخول دائمًا بعد اكتمال تحميل بيانات المستخدمين
+  const oldOnload = window.onload;
+  window.onload = async function(ev){
+    if(typeof oldOnload === 'function') await oldOnload.call(window, ev);
+    lockEditing(true);
+    cleanApprovalModalAsLogin();
+    document.body.classList.add('login-required');
+    document.body.classList.remove('user-logged-in');
+    setTimeout(openSystemLoginModal, 120);
   };
 
   document.addEventListener('DOMContentLoaded', function(){
-    renderApprovalUsersList();
-    updateAdminOnlyControls();
-    try { ensurePrintPaymentsSection(); } catch(e) {}
-    setTimeout(() => { try { ensurePrintPaymentsSection(); } catch(e) {} }, 700);
+    cleanApprovalModalAsLogin();
+    document.body.classList.add('login-required');
   });
-
-  setTimeout(function(){
-    renderApprovalUsersList();
-    updateAdminOnlyControls();
-    try { ensurePrintPaymentsSection(); } catch(e) {}
-  }, 1000);
 })();
 
 </script>
