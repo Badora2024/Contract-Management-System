@@ -3290,21 +3290,6 @@ textarea[id$="_notes"]::placeholder{
   opacity:.75!important;
 }
 
-
-/* PATCH 2026-06-06-FINAL-FORCE-LOGIN CSS */
-body.login-required #approval-modal{display:flex!important;opacity:1!important;visibility:visible!important;pointer-events:auto!important;}
-body.login-required .container,body.login-required .header{filter:blur(2px)!important;pointer-events:none!important;user-select:none!important;}
-body.user-logged-in #approval-modal{display:none!important;}
-#approval-modal .approval-note,#approval-modal .approval-code-hint,#approval-modal .approval-close,#approval-modal #approval-cancel-btn,
-#approval-modal #approval_reason,#approval-modal .form-group:has(#approval_reason){display:none!important;}
-#approval-modal .approval-head h3{width:100%!important;text-align:center!important;color:var(--gold)!important;}
-#approval-modal #approval_by{width:100%!important;height:44px!important;border:1px solid var(--border)!important;background:var(--input-bg)!important;color:var(--white)!important;border-radius:10px!important;padding:0 12px!important;font-family:'Cairo',Tahoma,Arial,sans-serif!important;font-weight:900!important;}
-button[onclick*="lockEditing"],button[onclick*="saveCurrentEdits"]{display:none!important;}
-button[onclick*="showAuditLog"]:not(.admin-only-control),button[onclick*="showPermissionsScreen"]:not(.admin-only-control){display:none!important;}
-.admin-only-control{display:none!important;}
-body.admin-session .admin-only-control{display:inline-flex!important;}
-body:not(.admin-session) #audit-panel,body:not(.admin-session) #permissions-panel{display:none!important;}
-
 </style>
 
 <style id="final-print-override">
@@ -5551,7 +5536,58 @@ function exportData(){
     .print-header-center .h4{font-size:15px!important;font-weight:900!important;margin:4px 0 0 0!important;line-height:1.25!important;color:#000!important;text-align:center!important;}
     .print-info-value.print-budget-under-contract{display:none!important;}
 
-  </style>`;
+  
+/* PATCH 2026-06-06-FINAL-FORCE-LOGIN-LAST CSS */
+body:not(.user-logged-in) #approval-modal{
+  display:flex!important;
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  z-index:999999!important;
+}
+body:not(.user-logged-in) .container,
+body:not(.user-logged-in) .header{
+  filter:blur(2px)!important;
+  pointer-events:none!important;
+  user-select:none!important;
+}
+body.user-logged-in #approval-modal{
+  display:none!important;
+}
+#approval-modal .approval-note,
+#approval-modal .approval-code-hint,
+#approval-modal .approval-close,
+#approval-modal #approval-cancel-btn,
+#approval-modal #approval_reason,
+#approval-modal .form-group:has(#approval_reason){
+  display:none!important;
+}
+#approval-modal .approval-head h3{
+  width:100%!important;
+  text-align:center!important;
+  color:var(--gold)!important;
+}
+#approval-modal #approval_by{
+  width:100%!important;
+  height:44px!important;
+  border:1px solid var(--border)!important;
+  background:var(--input-bg)!important;
+  color:var(--white)!important;
+  border-radius:10px!important;
+  padding:0 12px!important;
+  font-family:'Cairo',Tahoma,Arial,sans-serif!important;
+  font-weight:900!important;
+}
+button[onclick*="lockEditing"],
+button[onclick*="saveCurrentEdits"]{display:none!important;}
+button[onclick*="showAuditLog"]:not(.admin-only-control),
+button[onclick*="showPermissionsScreen"]:not(.admin-only-control){display:none!important;}
+.admin-only-control{display:none!important;}
+body.admin-session .admin-only-control{display:inline-flex!important;}
+body:not(.admin-session) #audit-panel,
+body:not(.admin-session) #permissions-panel{display:none!important;}
+
+</style>`;
 
   const html = '<html><head><meta charset="utf-8">' + styles + '</head><body>' + buildPaymentOutputHtml(true) + '</body></html>';
   const blob = new Blob(['\ufeff' + html], {type:'application/vnd.ms-excel;charset=utf-8'});
@@ -5604,6 +5640,190 @@ console.log('PATCH_20260604_EXTENSIONS_PROC_PRINT_APPLIED');
 console.log('PATCH_BUDGET_UNDER_CONTRACT_DYNAMIC_TENDER');
 
 console.log('PATCH_BUDGET_UNDER_HEADER_CONTRACT_NUMBER');
+
+/* =====================================================
+   PATCH 2026-06-06-FINAL-FORCE-LOGIN-LAST
+   هذا الباتش يُضاف قبل آخر </script> حتى يعمل بعد كل الأكواد السابقة
+   ===================================================== */
+(function(){
+  window.__LOGIN_OK_THIS_SESSION__ = false;
+
+  function q(id){ return document.getElementById(id); }
+
+  function fillUsers(){
+    let by = q('approval_by');
+    if(by && by.tagName !== 'SELECT'){
+      const parent = by.parentElement;
+      const sel = document.createElement('select');
+      sel.id = 'approval_by';
+      sel.className = by.className || 'approval-control';
+      parent.replaceChild(sel, by);
+      by = sel;
+    }
+    if(by){
+      const users = (typeof getPermissionsUsers === 'function' ? getPermissionsUsers() : []).filter(u => u && u.active !== false);
+      by.innerHTML = '<option value="">اختر اسم المستخدم...</option>' + users.map(u =>
+        `<option value="${escapeHtml(u.username || '')}">${escapeHtml((u.displayName || u.username || '') + (u.title ? ' — ' + u.title : ''))}</option>`
+      ).join('');
+      const label = by.closest('.form-group')?.querySelector('label');
+      if(label) label.textContent = 'اسم المستخدم';
+    }
+  }
+
+  function prepareLogin(){
+    const modal = q('approval-modal');
+    if(!modal) return;
+    const h = modal.querySelector('.approval-head h3');
+    if(h) h.textContent = 'تسجيل الدخول إلى نظام إدارة العقود';
+
+    modal.querySelectorAll('.approval-note,.approval-code-hint,.approval-close,#approval-cancel-btn').forEach(x => {
+      x.style.setProperty('display','none','important');
+    });
+
+    const reason = q('approval_reason');
+    if(reason){
+      reason.value = 'دخول النظام';
+      const g = reason.closest('.form-group');
+      if(g) g.style.setProperty('display','none','important');
+    }
+
+    const code = q('approval_code');
+    if(code){
+      const label = code.closest('.form-group')?.querySelector('label');
+      if(label) label.textContent = 'رمز الدخول';
+    }
+
+    const submit = q('approval-submit-btn');
+    if(submit) submit.textContent = 'دخول النظام';
+
+    fillUsers();
+  }
+
+  function clearSearch(){
+    try{
+      const s = q('search-input');
+      if(s){
+        s.value = '';
+        s.setAttribute('autocomplete','off');
+        s.setAttribute('name','contract_search_no_autofill_' + Date.now());
+        if(typeof filterContracts === 'function') filterContracts('');
+      }
+      const p = q('contract-picker-panel');
+      if(p) p.classList.remove('show');
+      if(typeof closeContractPicker === 'function') closeContractPicker();
+    }catch(e){}
+  }
+
+  function showLogin(){
+    if(window.__LOGIN_OK_THIS_SESSION__) return;
+
+    prepareLogin();
+    clearSearch();
+
+    document.body.classList.remove('user-logged-in','admin-session');
+    document.body.classList.add('login-required','edit-locked');
+
+    try{
+      editUnlocked = false;
+      currentApproval = null;
+    }catch(e){}
+
+    const modal = q('approval-modal');
+    if(modal){
+      modal.classList.add('show');
+      modal.style.setProperty('display','flex','important');
+      modal.style.setProperty('opacity','1','important');
+      modal.style.setProperty('visibility','visible','important');
+      modal.style.setProperty('pointer-events','auto','important');
+      modal.style.setProperty('z-index','999999','important');
+    }
+
+    setTimeout(() => q('approval_by')?.focus(), 100);
+  }
+
+  window.renderApprovalUsersList = function(){ fillUsers(); };
+  window.openApprovalModal = function(){ window.__LOGIN_OK_THIS_SESSION__ = false; showLogin(); };
+  window.openSystemLoginModal = window.openApprovalModal;
+
+  window.approveEditing = function(evt){
+    if(evt && typeof evt.preventDefault === 'function') evt.preventDefault();
+
+    const byEl = q('approval_by');
+    const codeEl = q('approval_code');
+    const username = (byEl?.value || '').trim();
+    const code = (codeEl?.value || '').trim();
+
+    if(!username){ showApprovalError('يرجى اختيار اسم المستخدم.'); byEl?.focus(); return false; }
+    if(!code){ showApprovalError('يرجى إدخال رمز الدخول.'); codeEl?.focus(); return false; }
+
+    const user = findPermissionUser(username);
+    if(!user || user.active === false){ showApprovalError('اسم المستخدم غير موجود أو غير مفعل.'); return false; }
+
+    const saved = normalizeApprovalCode(user.approvalCode || '');
+    const entered = normalizeApprovalCode(code);
+    if(!saved || saved !== entered){
+      showApprovalError('رمز الدخول غير صحيح.');
+      codeEl?.focus();
+      codeEl?.select?.();
+      return false;
+    }
+
+    window.__LOGIN_OK_THIS_SESSION__ = true;
+
+    currentApproval = {
+      by: user.displayName || user.username,
+      username: user.username,
+      reason: 'دخول النظام',
+      action: 'دخول النظام',
+      at: new Date().toISOString(),
+      permissions: user.permissions || {}
+    };
+
+    editUnlocked = !!(hasUserPermission(user,'edit') || hasUserPermission(user,'approveEdit') || hasUserPermission(user,'admin'));
+
+    document.body.classList.remove('login-required');
+    document.body.classList.add('user-logged-in');
+
+    if(hasUserPermission(user,'admin') || hasUserPermission(user,'manageUsers')){
+      document.body.classList.add('admin-session');
+    }else{
+      document.body.classList.remove('admin-session');
+    }
+
+    const modal = q('approval-modal');
+    if(modal){
+      modal.classList.remove('show');
+      modal.style.removeProperty('display');
+      modal.style.removeProperty('opacity');
+      modal.style.removeProperty('visibility');
+      modal.style.removeProperty('pointer-events');
+      modal.style.removeProperty('z-index');
+    }
+
+    if(typeof setEditMode === 'function') setEditMode(editUnlocked);
+    if(typeof updateAdminOnlyControls === 'function') updateAdminOnlyControls();
+
+    clearSearch();
+
+    try { addAuditEntry('دخول المستخدم إلى النظام'); } catch(e){}
+    try { saveSharedSystemData('دخول المستخدم إلى النظام'); } catch(e){}
+    showToast('تم تسجيل الدخول: ' + (user.displayName || user.username), '👤');
+    return true;
+  };
+
+  // تنفيذ متأخر بعد كل الأكواد السابقة التي تضيف user-logged-in تلقائيًا
+  document.addEventListener('DOMContentLoaded', function(){
+    setTimeout(showLogin, 300);
+  });
+  window.addEventListener('load', function(){
+    setTimeout(showLogin, 600);
+    setTimeout(showLogin, 1500);
+    setTimeout(showLogin, 3000);
+  });
+  setTimeout(showLogin, 2200);
+  setTimeout(showLogin, 4200);
+})();
+
 </script>
 </body>
 </html>
