@@ -3290,6 +3290,45 @@ textarea[id$="_notes"]::placeholder{
   opacity:.75!important;
 }
 
+
+/* =====================================================
+   FINAL LOGIN / PERMISSIONS CLEAN VERSION 2026-06-06
+   ===================================================== */
+body.auth-required:not(.auth-ok) .container,
+body.auth-required:not(.auth-ok) .header{
+  filter:blur(2px)!important;
+  pointer-events:none!important;
+  user-select:none!important;
+}
+body.auth-required:not(.auth-ok) #approval-modal{
+  display:flex!important;
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  z-index:999999!important;
+}
+body.auth-ok #approval-modal{display:none!important;}
+#approval-modal .approval-box{width:min(94vw,520px)!important;}
+#approval-modal .approval-head h3{width:100%;text-align:center;font-size:18px!important;color:var(--gold)!important;}
+#approval-modal #approval_by{
+  width:100%!important;height:44px!important;border:1px solid var(--border)!important;
+  background:var(--input-bg)!important;color:var(--white)!important;border-radius:10px!important;
+  padding:0 12px!important;font-family:'Cairo',Tahoma,Arial,sans-serif!important;font-weight:900!important;
+}
+#approval-modal .approval-close,#approval-modal .approval-note,#approval-modal .approval-code-hint,#approval-cancel-btn{display:none!important;}
+button[onclick*="lockEditing"],button[onclick*="saveCurrentEdits"]{display:none!important;}
+.admin-only-control{display:none!important;}
+body.admin-session .admin-only-control{display:inline-flex!important;}
+body:not(.admin-session) #audit-panel,body:not(.admin-session) #permissions-panel{display:none!important;}
+.contract-selector-note,.edit-locked-hint{display:none!important;}
+#edit-status-text{min-height:0!important;}
+#search-input{direction:rtl!important;text-align:right!important;}
+#search-input:-webkit-autofill,#search-input:-webkit-autofill:hover,#search-input:-webkit-autofill:focus{
+  -webkit-box-shadow:0 0 0 1000px var(--input-bg) inset!important;
+  -webkit-text-fill-color:var(--white)!important;
+}
+.pay2-final-badge:empty,.recovery-stable-note:empty{display:none!important;}
+
 </style>
 
 <style id="final-print-override">
@@ -3341,15 +3380,15 @@ textarea[id$="_notes"]::placeholder{
   <div class="edit-permission-panel no-print" id="edit-permission-panel">
         <div class="ep-info">
           <div class="ep-title">🔐 صلاحية تعديل النظام بالكامل <span class="edit-status-badge" id="edit-status-badge">مغلق</span></div>
-          <div class="ep-desc" id="edit-status-text">البيانات للعرض والطباعة فقط. لا يمكن تعديل أي حقل في النظام إلا بعد موافقة معتمدة.</div>
-          <div class="edit-locked-hint">بعد الاعتماد تفتح صلاحية التعديل على النظام بالكامل، ويمكن التنقل بين جميع العقود دون طلب موافقة جديدة حتى يتم قفل التعديل.</div>
+          <div class="ep-desc" id="edit-status-text"></div>
+          <div class="edit-locked-hint"></div>
         </div>
         <div class="ep-actions">
-          <button type="button" class="btn-secondary btn-small approval-control" onclick="openApprovalModal('تعديل النظام بالكامل')">🔓 طلب صلاحية تعديل النظام</button>
+          <button type="button" class="btn-secondary btn-small approval-control" onclick="openApprovalModal('تعديل النظام بالكامل')">👤 دخول المستخدم / فتح التعديل</button>
           <button type="button" class="btn-secondary btn-small approval-control" onclick="lockEditing()">🔒 قفل التعديل</button>
           <button type="button" class="btn-secondary btn-small approval-control" onclick="saveCurrentEdits()">✅ حفظ التعديل</button>
-          <button type="button" class="btn-secondary btn-small approval-control" onclick="showAuditLog()">📋 سجل الموافقات</button>
-          <button type="button" class="btn-secondary btn-small approval-control" onclick="showPermissionsScreen()">👥 المستخدمون والصلاحيات</button>
+          <button type="button" class="btn-secondary btn-small approval-control admin-only-control" onclick="showAuditLog()">📋 سجل التعديلات</button>
+          <button type="button" class="btn-secondary btn-small approval-control admin-only-control" onclick="showPermissionsScreen()">👥 المستخدمون والصلاحيات</button>
         </div>
       </div>
 
@@ -3357,7 +3396,7 @@ textarea[id$="_notes"]::placeholder{
     <div class="contract-selector-top">
       <div>
         <div class="contract-selector-title">📑 اختيار العقد من القائمة المنسدلة</div>
-        <div class="contract-selector-note">تم نقل قائمة العقود إلى أعلى الصفحة لإتاحة مساحة أكبر لعرض بيانات الإدخال والدفعات بوضوح كامل.</div>
+        <div class="contract-selector-note"></div>
       </div>
       <div id="selected-contract-badge">لم يتم اختيار عقد بعد</div>
     </div>
@@ -3546,7 +3585,7 @@ textarea[id$="_notes"]::placeholder{
           <div class="total-card"><div class="tc-label">إجمالي المدفوع</div><div class="tc-value green" id="tot-paid">0.000</div><div class="tc-unit">دينار كويتي</div></div>
         </div>
         <div class="form-panel">
-          <div class="section-title">جدول الدفعات <span class="recovery-stable-note">تعديل الدفعات — سطرين فقط بدون مسطرة</span> <span id="pay-visible-count" style="font-size:11px;color:var(--text-light);margin-right:8px;"></span></div>
+          <div class="section-title">جدول الدفعات <span class="recovery-stable-note"></span> <span id="pay-visible-count" style="font-size:11px;color:var(--text-light);margin-right:8px;"></span></div>
           <div style="overflow-x:auto;">
           <table class="payments-table">
             <thead><tr>
@@ -3588,31 +3627,21 @@ textarea[id$="_notes"]::placeholder{
 <div class="approval-modal no-print" id="approval-modal">
   <div class="approval-box">
     <div class="approval-head">
-      <h3>طلب موافقة لتعديل النظام بالكامل</h3>
-      <button type="button" class="approval-close approval-control" onclick="closeApprovalModal()">×</button>
+      <h3>تسجيل الدخول إلى نظام إدارة العقود</h3>
     </div>
     <div class="approval-body">
-      <div class="approval-note">
-        سيتم فتح التعديل على النظام بالكامل بعد إدخال بيانات المعتمد ورمز الموافقة وسبب التعديل. بعد الاعتماد يمكنك التنقل بين جميع العقود والتعديل دون طلب موافقة جديدة، إلى أن تضغط زر قفل التعديل. يتم تسجيل العملية في سجل الموافقات داخل المتصفح.
+      <div class="form-group">
+        <label>اسم المستخدم</label>
+        <select id="approval_by" class="approval-control" autocomplete="off"></select>
       </div>
       <div class="form-group">
-        <label>اسم المعتمد / المسؤول</label>
-        <input type="text" id="approval_by" class="approval-control" placeholder="مثال: مدير الإدارة المالية">
-        <datalist id="approval_users_list"></datalist>
+        <label>رمز الدخول</label>
+        <input type="password" id="approval_code" class="approval-control" placeholder="أدخل رمز الدخول" autocomplete="off" dir="ltr">
       </div>
-      <div class="form-group">
-        <label>رمز الموافقة</label>
-        <input type="password" id="approval_code" class="approval-control" placeholder="أدخل رمز الموافقة" autocomplete="off" dir="ltr">
-        <div class="approval-code-hint">رمز الموافقة الافتراضي لهذه النسخة: <code>CSB-2026</code></div>
-      </div>
-      <div class="form-group">
-        <label>سبب التعديل</label>
-        <textarea id="approval_reason" class="approval-control" placeholder="اكتب سبب التعديل المطلوب..."></textarea>
-      </div>
+      <textarea id="approval_reason" class="approval-control" style="display:none!important;">دخول النظام</textarea>
       <div id="approval-error" class="approval-error"></div>
-      <div class="actions-bar" style="margin-top:2px;">
-        <button type="button" class="btn-secondary approval-control" id="approval-cancel-btn">إلغاء</button>
-        <button type="button" class="btn-primary approval-control" id="approval-submit-btn">اعتماد وفتح التعديل</button>
+      <div class="actions-bar" style="margin-top:2px;justify-content:center;">
+        <button type="button" class="btn-primary approval-control" id="approval-submit-btn">دخول النظام</button>
       </div>
     </div>
   </div>
@@ -3621,7 +3650,7 @@ textarea[id$="_notes"]::placeholder{
 <div class="audit-panel no-print" id="audit-panel">
   <div class="audit-box">
     <div class="approval-head">
-      <h3>📋 سجل الموافقات والتعديلات</h3>
+      <h3>📋 سجل التعديلات</h3>
       <button type="button" class="approval-close approval-control" onclick="closeAuditLog()">×</button>
     </div>
     <div class="audit-table-wrap" id="audit-table-wrap"></div>
@@ -3649,13 +3678,13 @@ textarea[id$="_notes"]::placeholder{
           <button type="button" class="btn-primary btn-small approval-control" onclick="savePermissionsUsers()">💾 حفظ الصلاحيات</button>
           <button type="button" class="btn-secondary btn-small approval-control" onclick="exportPermissionsUsers()">📤 تصدير الصلاحيات</button>
         </div>
-        <div style="font-size:11px;color:var(--text-light);">المستخدم الافتراضي: <b style="color:var(--gold);">admin</b> / رمز الموافقة: <b style="color:var(--gold);">CSB-2026</b></div>
+        <div style="font-size:11px;color:var(--text-light);">المستخدم الافتراضي: <b style="color:var(--gold);">admin</b> / رمز الدخول: <b style="color:var(--gold);">CSB-2026</b></div>
       </div>
       <div style="overflow:auto;">
         <table class="permissions-table">
           <thead>
             <tr>
-              <th>م</th><th>اسم المستخدم</th><th>الاسم الظاهر</th><th>المسمى/الإدارة</th><th>رمز الموافقة</th><th>الحالة</th>
+              <th>م</th><th>اسم المستخدم</th><th>الاسم الظاهر</th><th>المسمى/الإدارة</th><th>رمز الدخول</th><th>الحالة</th>
               <th>عرض</th><th>تعديل</th><th>إضافة</th><th>حذف</th><th>طباعة</th><th>تصدير</th><th>اعتماد التعديل</th><th>إدارة المستخدمين</th><th>مدير نظام</th><th>إجراء</th>
             </tr>
           </thead>
@@ -3724,7 +3753,7 @@ function onAmountInput(el) {
 
 // ─── EDIT APPROVAL STATE ───────────────────────────
 // ملاحظة مهمة: هذا الملف HTML مستقل، لذلك الحماية هنا حماية تشغيلية داخل الشاشة وليست بديلاً عن صلاحيات خادم/قاعدة بيانات.
-// يمكن تغيير رمز الموافقة من السطر التالي عند الحاجة.
+// يمكن تغيير رمز الدخول من السطر التالي عند الحاجة.
 const EDIT_APPROVAL_CODE = 'CSB-2026';
 const EDIT_APPROVAL_CODES = ['CSB-2026', '2026'];
 const USERS_PERMISSIONS_KEY = 'csb_contract_users_permissions_v1';
@@ -4823,9 +4852,9 @@ function approveEditing(evt) {
     return false;
   }
   if(!code) {
-    showApprovalError('يرجى إدخال رمز الموافقة. الرمز الافتراضي للمدير هو CSB-2026.');
+    showApprovalError('يرجى إدخال رمز الدخول. الرمز الافتراضي للمدير هو CSB-2026.');
     codeEl?.focus();
-    showToast('يرجى إدخال رمز الموافقة', '⚠️');
+    showToast('يرجى إدخال رمز الدخول', '⚠️');
     return false;
   }
   if(!reason) {
@@ -4849,9 +4878,9 @@ function approveEditing(evt) {
       return false;
     }
     if(!userCode || userCode !== entered) {
-      showApprovalError('رمز الموافقة غير صحيح لهذا المستخدم.');
+      showApprovalError('رمز الدخول غير صحيح لهذا المستخدم.');
       codeEl?.focus(); codeEl?.select?.();
-      showToast('رمز الموافقة غير صحيح', '⛔');
+      showToast('رمز الدخول غير صحيح', '⛔');
       return false;
     }
     if(!hasUserPermission(user, 'approveEdit') && !hasUserPermission(user, 'admin')) {
@@ -4865,9 +4894,9 @@ function approveEditing(evt) {
   } else {
     const allowed = (Array.isArray(EDIT_APPROVAL_CODES) ? EDIT_APPROVAL_CODES : [EDIT_APPROVAL_CODE]).map(normalizeApprovalCode);
     if(!allowed.includes(entered)) {
-      showApprovalError('رمز الموافقة غير صحيح. تأكد من كتابة CSB-2026 بدون مسافات، أو اختر مستخدمًا مسجلًا من شاشة الصلاحيات.');
+      showApprovalError('رمز الدخول غير صحيح. تأكد من كتابة CSB-2026 بدون مسافات، أو اختر مستخدمًا مسجلًا من شاشة الصلاحيات.');
       codeEl?.focus(); codeEl?.select?.();
-      showToast('رمز الموافقة غير صحيح', '⛔');
+      showToast('رمز الدخول غير صحيح', '⛔');
       return false;
     }
     approved = true;
@@ -4913,7 +4942,7 @@ function setEditMode(unlocked) {
   if(txt) {
     txt.textContent = editUnlocked && currentApproval
       ? `مفتوح على كامل النظام بواسطة: ${currentApproval.by} — السبب: ${currentApproval.reason}`
-      : 'البيانات للعرض والطباعة فقط. لا يمكن تعديل أي حقل في النظام إلا بعد موافقة معتمدة.';
+      : '';
   }
   enforceEditLockOnDynamicControls();
 }
@@ -5108,7 +5137,7 @@ function renderPermissionsUsersTable() {
       <td><input type="text" value="${escapeHtml(u.username || '')}" data-user-field="username" placeholder="username"></td>
       <td><input type="text" value="${escapeHtml(u.displayName || '')}" data-user-field="displayName" placeholder="الاسم الظاهر"></td>
       <td><input type="text" value="${escapeHtml(u.title || '')}" data-user-field="title" placeholder="المسمى / الإدارة"></td>
-      <td><input type="password" value="${escapeHtml(u.approvalCode || '')}" data-user-field="approvalCode" placeholder="رمز الموافقة"></td>
+      <td><input type="password" value="${escapeHtml(u.approvalCode || '')}" data-user-field="approvalCode" placeholder="رمز الدخول"></td>
       <td style="text-align:center;"><select data-user-field="active"><option value="true" ${u.active!==false?'selected':''}>مفعل</option><option value="false" ${u.active===false?'selected':''}>موقوف</option></select></td>
       ${perms.map(k => `<td><label class="perm-check"><input type="checkbox" data-user-perm="${k}" ${checked(k)}></label></td>`).join('')}
       <td style="text-align:center;"><button type="button" class="btn-danger btn-small approval-control" onclick="deletePermissionUser(${i})">حذف</button></td>
@@ -5213,18 +5242,18 @@ function exportAuditLog() {
   const blob = new Blob([JSON.stringify(log, null, 2)], {type:'application/json;charset=utf-8'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'سجل_موافقات_تعديل_العقود.json';
+  a.download = 'سجل_تعديلات_العقود.json';
   a.click();
-  showToast('تم تصدير سجل الموافقات', '💾');
+  showToast('تم تصدير سجل التعديلات', '💾');
 }
 
 async function clearAuditLog() {
-  if(!requireEditPermission('مسح سجل الموافقات')) return;
-  if(!confirm('هل تريد مسح سجل الموافقات من النظام المشترك؟')) return;
+  if(!requireEditPermission('مسح سجل التعديلات')) return;
+  if(!confirm('هل تريد مسح سجل التعديلات من النظام المشترك؟')) return;
   saveAuditLog([]);
-  await saveSharedSystemData('مسح سجل الموافقات');
+  await saveSharedSystemData('مسح سجل التعديلات');
   showAuditLog();
-  showToast('تم مسح سجل الموافقات', '🗑');
+  showToast('تم مسح سجل التعديلات', '🗑');
 }
 
 // ─── TOAST ───────────────────────────────────────────
@@ -5589,6 +5618,239 @@ console.log('PATCH_20260604_EXTENSIONS_PROC_PRINT_APPLIED');
 console.log('PATCH_BUDGET_UNDER_CONTRACT_DYNAMIC_TENDER');
 
 console.log('PATCH_BUDGET_UNDER_HEADER_CONTRACT_NUMBER');
+
+/* =====================================================
+   FINAL CLEAN LOGIC 2026-06-06
+   - First screen login only
+   - User dropdown + login code
+   - Admin-only users/audit
+   - Enter saves and moves next
+   - Print logo preload
+   ===================================================== */
+(function(){
+  let AUTH_USER = null;
+  window.__CONTRACT_SYSTEM_FINAL_LOGIN__ = true;
+
+  function activeUsers(){
+    try { return getPermissionsUsers().filter(u => u && u.active !== false); }
+    catch(e){ return []; }
+  }
+
+  function fillLoginUsers(){
+    const sel = document.getElementById('approval_by');
+    if(!sel) return;
+    const users = activeUsers();
+    sel.innerHTML = '<option value="">اختر اسم المستخدم...</option>' + users.map(u =>
+      `<option value="${escapeHtml(u.username || '')}">${escapeHtml((u.displayName || u.username || '') + (u.title ? ' — ' + u.title : ''))}</option>`
+    ).join('');
+  }
+
+  window.renderApprovalUsersList = function(){ fillLoginUsers(); };
+
+  function isAdminUser(u){
+    return !!(u && u.active !== false && (hasUserPermission(u,'admin') || hasUserPermission(u,'manageUsers')));
+  }
+
+  window.isSystemAdminSession = function(){ return isAdminUser(AUTH_USER); };
+
+  window.updateAdminOnlyControls = function(){
+    document.body.classList.toggle('admin-session', isAdminUser(AUTH_USER));
+    document.querySelectorAll('button').forEach(btn => {
+      const oc = btn.getAttribute('onclick') || '';
+      if(oc.includes('showAuditLog')) btn.textContent = '📋 سجل التعديلات';
+      if(oc.includes('showPermissionsScreen')) btn.textContent = '👥 المستخدمون والصلاحيات';
+      if(oc.includes('openLoginModal') || oc.includes('openApprovalModal')) btn.textContent = '👤 دخول المستخدم / فتح التعديل';
+    });
+    const h = document.querySelector('#audit-panel .approval-head h3');
+    if(h) h.textContent = '📋 سجل التعديلات';
+  };
+
+  function prepareLogin(){
+    const modal = document.getElementById('approval-modal');
+    if(!modal) return;
+    const h = modal.querySelector('.approval-head h3');
+    if(h) h.textContent = 'تسجيل الدخول إلى نظام إدارة العقود';
+    const reason = document.getElementById('approval_reason');
+    if(reason) reason.value = 'دخول النظام';
+    const err = document.getElementById('approval-error');
+    if(err){ err.textContent=''; err.classList.remove('show'); }
+    const code = document.getElementById('approval_code');
+    if(code) code.value = '';
+    fillLoginUsers();
+  }
+
+  window.openLoginModal = function(){
+    prepareLogin();
+    document.body.classList.add('auth-required');
+    document.body.classList.remove('auth-ok');
+    const modal = document.getElementById('approval-modal');
+    if(modal) modal.classList.add('show');
+    setTimeout(() => document.getElementById('approval_by')?.focus(), 80);
+  };
+
+  window.openApprovalModal = function(){ openLoginModal(); };
+  window.closeApprovalModal = function(){ /* لا يتم إغلاق شاشة الدخول قبل تسجيل الدخول */ };
+
+  window.approveEditing = function(evt){
+    if(evt && typeof evt.preventDefault === 'function') evt.preventDefault();
+    const byEl = document.getElementById('approval_by');
+    const codeEl = document.getElementById('approval_code');
+    const username = (byEl?.value || '').trim();
+    const code = (codeEl?.value || '').trim();
+
+    if(!username){ showApprovalError('يرجى اختيار اسم المستخدم.'); byEl?.focus(); return false; }
+    if(!code){ showApprovalError('يرجى إدخال رمز الدخول.'); codeEl?.focus(); return false; }
+
+    const user = findPermissionUser(username);
+    if(!user || user.active === false){ showApprovalError('اسم المستخدم غير موجود أو غير مفعل.'); return false; }
+    const saved = normalizeApprovalCode(user.approvalCode || '');
+    const entered = normalizeApprovalCode(code);
+    if(!saved || saved !== entered){
+      showApprovalError('رمز الدخول غير صحيح.');
+      codeEl?.focus(); codeEl?.select?.();
+      return false;
+    }
+
+    AUTH_USER = user;
+    currentApproval = {
+      by: user.displayName || user.username,
+      username: user.username,
+      reason: 'دخول النظام',
+      action: 'دخول النظام',
+      at: new Date().toISOString(),
+      permissions: user.permissions || {}
+    };
+
+    editUnlocked = !!(hasUserPermission(user,'edit') || hasUserPermission(user,'approveEdit') || hasUserPermission(user,'admin'));
+    document.body.classList.remove('auth-required');
+    document.body.classList.add('auth-ok');
+    document.getElementById('approval-modal')?.classList.remove('show');
+    setEditMode(editUnlocked);
+    updateAdminOnlyControls();
+    try { addAuditEntry('دخول المستخدم إلى النظام'); } catch(e){}
+    try { saveSharedSystemData('دخول المستخدم إلى النظام'); } catch(e){}
+    showToast('تم تسجيل الدخول: ' + (user.displayName || user.username), '👤');
+    return true;
+  };
+
+  // السماح بزر Enter داخل شاشة الدخول
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Enter' && e.target && e.target.closest && e.target.closest('#approval-modal')){
+      e.preventDefault(); approveEditing(e); return;
+    }
+  }, true);
+
+  const oldSetEditMode = window.setEditMode;
+  window.setEditMode = function(unlocked){
+    if(typeof oldSetEditMode === 'function') oldSetEditMode(unlocked);
+    const badge = document.getElementById('edit-status-badge');
+    const txt = document.getElementById('edit-status-text');
+    if(badge){
+      badge.textContent = editUnlocked ? 'مفتوح للتعديل' : 'مغلق';
+      badge.classList.toggle('unlocked', !!editUnlocked);
+    }
+    if(txt){
+      txt.textContent = AUTH_USER ? `مفتوح بواسطة: ${AUTH_USER.displayName || AUTH_USER.username}` : '';
+    }
+    updateAdminOnlyControls();
+  };
+
+  window.showPermissionsScreen = function(){
+    if(!isAdminUser(AUTH_USER)){ showToast('المستخدمون والصلاحيات تظهر فقط لمسؤول النظام', '⛔'); return; }
+    renderPermissionsUsersTable();
+    document.getElementById('permissions-panel')?.classList.add('show');
+  };
+
+  window.showAuditLog = function(){
+    if(!isAdminUser(AUTH_USER)){ showToast('سجل التعديلات يظهر فقط لمسؤول النظام', '⛔'); return; }
+    const panel = document.getElementById('audit-panel');
+    const wrap = document.getElementById('audit-table-wrap');
+    if(!panel || !wrap) return;
+    const log = getAuditLog();
+    if(!log.length){
+      wrap.innerHTML = '<div style="padding:22px;text-align:center;color:var(--text-light);font-size:13px;">لا يوجد سجل تعديلات حتى الآن.</div>';
+    }else{
+      wrap.innerHTML = `<table class="audit-table"><thead><tr>
+        <th>التاريخ والوقت</th><th>الإجراء</th><th>الميزانية</th><th>رقم العقد</th><th>موضوع العقد</th><th>المستخدم</th><th>سبب التعديل</th>
+      </tr></thead><tbody>${log.map(r => `<tr>
+        <td>${r.time || '—'}</td><td>${r.action || '—'}</td><td>${r.budget || '—'}</td><td>${r.contract || '—'}</td><td>${r.subject || '—'}</td><td>${r.approvedBy || '—'}</td><td>${r.reason || '—'}</td>
+      </tr>`).join('')}</tbody></table>`;
+    }
+    panel.classList.add('show');
+  };
+
+  const oldSavePermissionsUsers = window.savePermissionsUsers;
+  window.savePermissionsUsers = function(){
+    if(!isAdminUser(AUTH_USER)){ showToast('لا تملك صلاحية إدارة المستخدمين', '⛔'); return; }
+    return oldSavePermissionsUsers();
+  };
+
+  function editableControls(){
+    return Array.from(document.querySelectorAll(
+      '#tab-entry input:not([type="hidden"]),#tab-entry select,#tab-entry textarea,'+
+      '#tab-payments input:not([type="hidden"]),#tab-payments select,#tab-payments textarea'
+    )).filter(el => el.offsetParent !== null && !el.disabled && !el.readOnly && !el.classList.contains('approval-control'));
+  }
+  let enterBusy=false;
+  async function saveAndNext(el){
+    if(!editUnlocked || enterBusy) return;
+    enterBusy=true;
+    try { if(typeof saveCurrentEdits === 'function') await saveCurrentEdits(); }
+    catch(e){ console.error('Enter save failed:', e); }
+    finally { enterBusy=false; }
+    const arr=editableControls();
+    const i=arr.indexOf(el);
+    const next=arr[i+1] || arr[0];
+    if(next) setTimeout(()=>{ next.focus(); if(next.select && next.tagName !== 'TEXTAREA') next.select(); }, 60);
+  }
+  document.addEventListener('keydown', function(e){
+    const el=e.target;
+    if(!el || !['INPUT','SELECT','TEXTAREA'].includes(el.tagName)) return;
+    if(el.classList.contains('approval-control')) return;
+    if(e.key !== 'Enter' || e.shiftKey) return;
+    if(!el.closest('#tab-entry,#tab-payments')) return;
+    e.preventDefault(); saveAndNext(el);
+  }, true);
+
+  // طباعة: انتظر تحميل صور الهيدر قبل فتح نافذة الطباعة
+  function waitPrintImages(timeout=2500){
+    try{
+      if(typeof ensurePrintPaymentsSection === 'function') ensurePrintPaymentsSection();
+      const scope = document.getElementById('print-payments-section') || document;
+      const imgs = Array.from(scope.querySelectorAll('img'));
+      if(!imgs.length) return Promise.resolve();
+      return new Promise(resolve => {
+        let done=false,left=imgs.length;
+        const finish=()=>{ if(!done){done=true;resolve();} };
+        const tick=()=>{ left--; if(left<=0) finish(); };
+        imgs.forEach(img=>{
+          if(img.complete && img.naturalWidth) tick();
+          else{
+            img.addEventListener('load',tick,{once:true});
+            img.addEventListener('error',tick,{once:true});
+            const pre=new Image(); pre.onload=tick; pre.onerror=tick; pre.src=img.src;
+          }
+        });
+        setTimeout(finish,timeout);
+      });
+    }catch(e){ return Promise.resolve(); }
+  }
+  const nativePrint = window.print.bind(window);
+  window.print = function(){ waitPrintImages().then(()=>setTimeout(()=>nativePrint(),250)); };
+
+  // إظهار شاشة الدخول بعد اكتمال تحميل البيانات الأصلية دون إلغاء تحميلها
+  window.addEventListener('load', function(){
+    setTimeout(function(){
+      prepareLogin();
+      document.body.classList.add('auth-required');
+      document.body.classList.remove('auth-ok');
+      document.getElementById('approval-modal')?.classList.add('show');
+      updateAdminOnlyControls();
+      setTimeout(() => document.getElementById('approval_by')?.focus(), 100);
+    }, 300);
+  });
+})();
+
 </script>
 </body>
 </html>
