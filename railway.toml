@@ -1,5 +1,7 @@
-لا ترفع DATABASE_URL إلى GitHub إذا كان فيه بيانات حقيقية.
-ضع DATABASE_URL فقط داخل Railway Variables.
+[build]
+builder = "NIXPACKS"
 
-DATABASE_URL=postgresql://USER:PASSWORD@HOST:PORT/railway
-PGSSLMODE=require
+[deploy]
+startCommand = "npm start"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
