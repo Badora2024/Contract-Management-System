@@ -3454,6 +3454,16 @@ body:not(.admin-session) #audit-panel,body:not(.admin-session) #permissions-pane
   body.printing-report .report-doc{padding:0!important;border-radius:0!important;box-shadow:none!important}
 }
 
+
+/* Reports print/PDF isolation fix */
+@media print{
+  body.printing-report > *:not(.container){display:none!important;}
+  body.printing-report .container{display:block!important;background:#fff!important;color:#000!important;}
+  body.printing-report #tab-reports,
+  body.printing-report .reports-output-panel,
+  body.printing-report .reports-output,
+  body.printing-report .report-doc{display:block!important;background:#fff!important;color:#000!important;}
+}
 </style>
 
 <style id="final-print-override">
@@ -3777,7 +3787,7 @@ body:not(.admin-session) #audit-panel,body:not(.admin-session) #permissions-pane
 
           <div class="actions-bar">
             <button class="btn-primary" onclick="generateReport()">📄 عرض التقرير</button>
-            <button class="btn-secondary" onclick="printReport()">🖨 طباعة / PDF</button>
+            <button class="btn-secondary" onclick="printReport()">🖨 طباعة / حفظ PDF</button>
             <button class="btn-secondary" onclick="exportReportCSV()">📊 تصدير Excel</button>
           </div>
         </div>
@@ -6352,11 +6362,57 @@ console.log('PATCH_BUDGET_UNDER_HEADER_CONTRACT_NUMBER');
 
   window.printReport = function(){
     generateReport();
-    document.body.classList.add('printing-report');
+    const doc = document.querySelector('#reports-output .report-doc');
+    if(!doc){
+      showToast('لا يوجد تقرير جاهز للطباعة. اضغط عرض التقرير أولاً.', '⚠️');
+      return;
+    }
+
+    const title = (doc.querySelector('.report-title h3')?.innerText || 'تقرير العقود').trim();
+    const printWindow = window.open('', '_blank', 'width=1200,height=850,scrollbars=yes,resizable=yes');
+    if(!printWindow){
+      showToast('يرجى السماح بالنوافذ المنبثقة لطباعة التقرير / حفظه PDF', '⚠️');
+      return;
+    }
+
+    const reportHtml = doc.outerHTML;
+    const css = `
+      @page{size:A4 landscape;margin:8mm;}
+      *{box-sizing:border-box;}
+      html,body{margin:0;padding:0;background:#fff;color:#000;direction:rtl;font-family:Arial,Tahoma,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+      body{padding:8mm;}
+      .report-doc{background:#fff;color:#000;direction:rtl;width:100%;padding:0;font-family:Arial,Tahoma,sans-serif;}
+      .report-title{text-align:center;margin-bottom:10px;border-bottom:1px solid #bbb;padding-bottom:8px;}
+      .report-title h2{font-size:18pt;margin:0 0 3px;font-weight:900;color:#000;}
+      .report-title h3{font-size:13pt;margin:0 0 3px;font-weight:900;color:#000;}
+      .report-title .muted{font-size:9pt;color:#555;font-weight:700;}
+      .report-meta{display:flex;justify-content:space-between;gap:10px;margin:8px 0 11px;font-size:9pt;font-weight:800;}
+      .report-table{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:8.2pt;color:#000;table-layout:fixed;page-break-inside:auto;}
+      .report-table thead{display:table-header-group;}
+      .report-table tr{page-break-inside:avoid;break-inside:avoid;}
+      .report-table th{background:#eee!important;border:1px solid #bdbdbd;padding:4px 3px;text-align:center;font-weight:900;color:#000;}
+      .report-table td{border:1px solid #d2d2d2;padding:4px 3px;text-align:center;vertical-align:middle;color:#000;word-break:break-word;}
+      .report-table td.text-cell{text-align:right;line-height:1.45;}
+      .report-table .num-cell{direction:ltr;font-family:'Courier New',monospace;font-weight:900;}
+      .report-section-heading{font-weight:900;font-size:11pt;color:#000;margin:10px 0 6px;padding:5px 8px;background:#f5f5f5!important;border:1px solid #ddd;border-radius:6px;}
+      .report-info-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:9px 0;}
+      .report-info-cell{border:1px solid #d2d2d2;border-radius:6px;padding:6px 7px;min-height:38px;background:#fff;}
+      .report-info-label{font-size:8pt;color:#555;font-weight:900;margin-bottom:2px;}
+      .report-info-value{font-size:9pt;color:#000;font-weight:900;line-height:1.35;}
+      .report-change-list{margin:0;padding:0;list-style:none;}
+      .report-change-list li{padding:2px 0;border-bottom:1px dotted #ddd;}
+      .report-change-list li:last-child{border-bottom:0;}
+      .no-print,.actions-bar,button{display:none!important;}
+      @media print{body{padding:0;} .report-doc{padding:0;} }
+    `;
+
+    printWindow.document.open();
+    printWindow.document.write(`<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>${repEsc(title)}</title><style>${css}</style></head><body>${reportHtml}</body></html>`);
+    printWindow.document.close();
+    printWindow.focus();
     setTimeout(() => {
-      window.print();
-      setTimeout(() => document.body.classList.remove('printing-report'), 700);
-    }, 220);
+      printWindow.print();
+    }, 450);
   };
 
   window.exportReportCSV = function(){
