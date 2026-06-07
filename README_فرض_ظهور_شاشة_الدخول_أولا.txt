@@ -1,7 +1,7 @@
-تم تطبيق Patch نهائي على النسخة المرفوعة:
-PATCH 2026-06-06-FINAL-FORCE-LOGIN
+تمت إضافة الباتش قبل آخر </script> وليس أول script.
 
-هذا التعديل يجبر شاشة الدخول على الظهور أولًا حتى لو أضاف الكود القديم class=user-logged-in.
+ابحث في Railway بعد الرفع عن:
+PATCH 2026-06-06-FINAL-FORCE-LOGIN-LAST
 
 syntax_ok=True
 
