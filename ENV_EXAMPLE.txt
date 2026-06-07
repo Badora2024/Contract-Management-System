@@ -1,2 +1,5 @@
-server.js syntax: 0
+لا ترفع DATABASE_URL إلى GitHub إذا كان فيه بيانات حقيقية.
+ضع DATABASE_URL فقط داخل Railway Variables.
 
+DATABASE_URL=postgresql://USER:PASSWORD@HOST:PORT/railway
+PGSSLMODE=require

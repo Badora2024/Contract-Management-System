@@ -3329,6 +3329,131 @@ body:not(.admin-session) #audit-panel,body:not(.admin-session) #permissions-pane
 }
 .pay2-final-badge:empty,.recovery-stable-note:empty{display:none!important;}
 
+
+/* =====================================================
+   Reports Screen — شاشة التقارير
+   ===================================================== */
+.reports-panel{margin-bottom:16px}
+.reports-toolbar{
+  display:grid;
+  grid-template-columns:1.2fr 1fr 1.8fr;
+  gap:14px;
+  align-items:end;
+}
+.reports-toolbar .span-2{grid-column:auto}
+.report-options{
+  margin-top:12px;
+  padding:10px 12px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  background:rgba(10,22,40,.35);
+}
+.report-checkline{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-weight:800;
+  color:var(--white);
+  cursor:pointer;
+}
+.report-checkline input{width:16px;height:16px;accent-color:var(--gold)}
+.report-hint{font-size:12px;color:var(--text-light);margin-top:6px}
+.report-contract-choices{
+  margin-top:12px;
+  max-height:230px;
+  overflow:auto;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:rgba(10,22,40,.4);
+  padding:8px;
+}
+.report-choice{
+  display:grid;
+  grid-template-columns:34px 130px 1fr 220px 110px;
+  gap:10px;
+  align-items:center;
+  padding:9px 10px;
+  border-bottom:1px solid rgba(201,162,39,.13);
+  font-size:12px;
+}
+.report-choice:last-child{border-bottom:0}
+.report-choice:hover{background:rgba(201,162,39,.06)}
+.report-choice input{width:16px;height:16px;accent-color:var(--gold)}
+.report-choice-num{color:var(--gold);font-weight:900;direction:ltr;text-align:right}
+.report-choice-subject{font-weight:800;color:var(--white);white-space:normal;line-height:1.6}
+.report-choice-company{color:var(--text-light);font-weight:700}
+.report-choice-budget{font-size:11px;color:var(--gold-light);text-align:center}
+.reports-output-panel{background:rgba(17,34,64,.72)}
+.reports-output{min-height:220px}
+.report-empty{text-align:center;color:var(--text-light);padding:55px 10px;font-weight:800}
+.report-doc{
+  background:#fff;
+  color:#000;
+  direction:rtl;
+  border-radius:12px;
+  padding:24px 26px;
+  font-family:'Cairo',Tahoma,Arial,sans-serif;
+}
+.report-doc *{box-sizing:border-box}
+.report-title{text-align:center;margin-bottom:14px;border-bottom:1px solid #bbb;padding-bottom:10px}
+.report-title h2{font-size:20px;margin:0 0 4px;font-weight:900;color:#000}
+.report-title h3{font-size:15px;margin:0 0 4px;font-weight:900;color:#000}
+.report-title .muted{font-size:11px;color:#555;font-weight:700}
+.report-meta{display:flex;justify-content:space-between;gap:10px;margin:10px 0 14px;font-size:11px;font-weight:800}
+.report-table{width:100%;border-collapse:collapse;margin:10px 0 18px;font-size:11px;color:#000;table-layout:fixed}
+.report-table th{background:#eee;border:1px solid #ccc;padding:6px 5px;text-align:center;font-weight:900;color:#000}
+.report-table td{border:1px solid #ddd;padding:6px 5px;text-align:center;vertical-align:middle;color:#000;word-break:break-word}
+.report-table td.text-cell{text-align:right;line-height:1.55}
+.report-table .num-cell{direction:ltr;font-family:'Courier New',monospace;font-weight:900}
+.report-section-heading{
+  font-weight:900;
+  font-size:14px;
+  color:#000;
+  margin:16px 0 8px;
+  padding:7px 10px;
+  background:#f5f5f5;
+  border:1px solid #ddd;
+  border-radius:8px;
+}
+.report-info-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  margin:12px 0;
+}
+.report-info-cell{
+  border:1px solid #ddd;
+  border-radius:8px;
+  padding:8px 9px;
+  min-height:50px;
+  background:#fff;
+}
+.report-info-label{font-size:10px;color:#555;font-weight:900;margin-bottom:3px}
+.report-info-value{font-size:12px;color:#000;font-weight:900;line-height:1.45}
+.report-change-list{margin:0;padding:0;list-style:none}
+.report-change-list li{padding:2px 0;border-bottom:1px dotted #ddd}
+.report-change-list li:last-child{border-bottom:0}
+.report-print-only{display:none}
+@media print{
+  body.printing-report .container,
+  body.printing-report .header,
+  body.printing-report .approval-modal,
+  body.printing-report .audit-panel,
+  body.printing-report .permissions-panel,
+  body.printing-report .toast,
+  body.printing-report .sidebar,
+  body.printing-report .actions-bar,
+  body.printing-report .tabs,
+  body.printing-report .reports-panel,
+  body.printing-report #tab-entry,
+  body.printing-report #tab-payments,
+  body.printing-report #tab-summary{display:none!important}
+  body.printing-report #tab-reports{display:block!important}
+  body.printing-report .reports-output-panel{display:block!important;border:0!important;background:#fff!important;padding:0!important}
+  body.printing-report .reports-output{display:block!important}
+  body.printing-report .report-doc{padding:0!important;border-radius:0!important;box-shadow:none!important}
+}
+
 </style>
 
 <style id="final-print-override">
@@ -3447,6 +3572,7 @@ body:not(.admin-session) #audit-panel,body:not(.admin-session) #permissions-pane
         <button class="tab active" onclick="switchTab(this,'tab-entry')">📝 بيانات العقد</button>
         <button class="tab" onclick="switchTab(this,'tab-payments')">💳 الدفعات</button>
         <button class="tab" onclick="switchTab(this,'tab-summary')">📊 الملخص</button>
+        <button class="tab" onclick="switchTab(this,'tab-reports');openReportsTab()">📋 التقارير</button>
       </div>
 
       <!-- TAB: Entry -->
@@ -3611,6 +3737,55 @@ body:not(.admin-session) #audit-panel,body:not(.admin-session) #permissions-pane
           <div class="total-card"><div class="tc-label">إجمالي التخفيضات</div><div class="tc-value red" id="sum-deductions">—</div><div class="tc-unit">دينار كويتي</div></div>
           <div class="total-card"><div class="tc-label">إجمالي الغرامات</div><div class="tc-value red" id="sum-fines">—</div><div class="tc-unit">دينار كويتي</div></div>
           <div class="total-card"><div class="tc-label">نسبة الإنجاز</div><div class="tc-value" id="sum-pct">—</div><div class="tc-unit">%</div></div>
+        </div>
+      </div>
+
+
+      <!-- TAB: Reports -->
+      <div id="tab-reports" style="display:none;">
+        <div class="form-panel reports-panel no-print">
+          <div class="section-title">📋 شاشة التقارير</div>
+          <div class="reports-toolbar">
+            <div class="form-group">
+              <label>نوع التقرير</label>
+              <select id="report_type" onchange="onReportTypeChange()">
+                <option value="bulk_basic">تقرير بيانات أساسية — عدة عقود / جميع العقود</option>
+                <option value="single_full">تقرير تفصيلي — عقد معين مع كل الدفعات</option>
+                <option value="single_audit">تقرير مفصل بالتعديلات — عقد معين</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>نوع الميزانية</label>
+              <select id="report_budget" onchange="renderReportContractChoices()">
+                <option value="all">جميع الميزانيات</option>
+                <option value="diwan">ميزانية ديوان الخدمة المدنية</option>
+                <option value="jahaat">ميزانية الجهات</option>
+              </select>
+            </div>
+            <div class="form-group span-2">
+              <label>بحث داخل العقود</label>
+              <input type="text" id="report_search" placeholder="بحث برقم العقد أو الموضوع أو الشركة..." oninput="renderReportContractChoices()">
+            </div>
+          </div>
+
+          <div id="report_multi_options" class="report-options">
+            <label class="report-checkline"><input type="checkbox" id="report_all_contracts" checked onchange="renderReportContractChoices()"> إدراج جميع العقود المطابقة</label>
+            <div class="report-hint">عند إلغاء الاختيار يمكن تحديد عدة عقود من القائمة أدناه.</div>
+          </div>
+
+          <div id="report_contract_choices" class="report-contract-choices"></div>
+
+          <div class="actions-bar">
+            <button class="btn-primary" onclick="generateReport()">📄 عرض التقرير</button>
+            <button class="btn-secondary" onclick="printReport()">🖨 طباعة / PDF</button>
+            <button class="btn-secondary" onclick="exportReportCSV()">📊 تصدير Excel</button>
+          </div>
+        </div>
+
+        <div class="form-panel reports-output-panel">
+          <div id="reports-output" class="reports-output">
+            <div class="report-empty">اختر نوع التقرير ثم اضغط «عرض التقرير».</div>
+          </div>
         </div>
       </div>
 
@@ -5848,6 +6023,447 @@ console.log('PATCH_BUDGET_UNDER_HEADER_CONTRACT_NUMBER');
       updateAdminOnlyControls();
       setTimeout(() => document.getElementById('approval_by')?.focus(), 100);
     }, 300);
+  });
+})();
+
+
+/* =====================================================
+   Reports Screen Logic — شاشة التقارير
+   ===================================================== */
+(function(){
+  const REPORT_FIELD_LABELS = {
+    subject:'موضوع العقد',
+    proc_type:'نوع الإجراء',
+    tender_num:'رقم المناقصة / الممارسة / التعاقد المباشر',
+    company:'اسم الشركة',
+    civil_num:'الرقم المدني',
+    contract_num:'رقم العقد',
+    link_num:'رقم الارتباط',
+    duration:'مدة العقد',
+    date_start:'تاريخ البداية',
+    date_end:'تاريخ النهاية',
+    total_value:'القيمة الإجمالية',
+    annual_value:'القيمة السنوية',
+    insurance:'التأمين النهائي',
+    labor_cert:'شهادة العمالة',
+    tax_cert:'شهادة الضريبة'
+  };
+
+  const PAYMENT_FIELD_LABELS = {
+    period:'فترة / بيان الدفعة',
+    amount:'مبلغ الدفعة',
+    request:'طلب السداد',
+    deduct:'التخفيض',
+    fine:'الغرامة',
+    fine_form:'استمارة الغرامة',
+    paid:'المبلغ المدفوع',
+    disp_form:'استمارة الصرف',
+    pay_form:'استمارة السداد',
+    notes:'ملاحظات'
+  };
+
+  function repEsc(v){
+    return String(v ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  }
+  function repNum(v){
+    const n = Number(v || 0);
+    return isFinite(n) && n !== 0 ? formatAmount(n) : '—';
+  }
+  function repDate(v){
+    if(!v) return '—';
+    const s = String(v).substring(0,10);
+    return s || '—';
+  }
+  function repText(v){
+    return (v === null || v === undefined || v === '') ? '—' : String(v);
+  }
+  function budgetLabel(budget){
+    return budget === 'jahaat' ? 'ميزانية الجهات' : 'ميزانية ديوان الخدمة المدنية';
+  }
+  function tenderLabel(proc){
+    const p = String(proc || '');
+    if(p.includes('ممارسة')) return 'رقم الممارسة';
+    if(p.includes('تعاقد')) return 'رقم التعاقد المباشر';
+    return 'رقم المناقصة';
+  }
+  function allReportContracts(){
+    const arr = [];
+    (ALL_CONTRACTS || []).forEach((c, idx) => arr.push({budget:'diwan', idx, c}));
+    (ALL_CONTRACTS_JAHAAT || []).forEach((c, idx) => arr.push({budget:'jahaat', idx, c}));
+    return arr;
+  }
+  function currentReportFilter(){
+    const budget = document.getElementById('report_budget')?.value || 'all';
+    const q = String(document.getElementById('report_search')?.value || '').trim().toLowerCase();
+    return allReportContracts().filter(item => {
+      if(budget !== 'all' && item.budget !== budget) return false;
+      if(!q) return true;
+      const c = item.c || {};
+      const hay = [c.contract_num, c.subject, c.company, c.civil_num, c.tender_num, budgetLabel(item.budget)].join(' ').toLowerCase();
+      return hay.includes(q);
+    });
+  }
+  function reportContractKey(item){
+    return item.budget + '|' + item.idx;
+  }
+  function findReportContractByKey(key){
+    const [budget, idxStr] = String(key || '').split('|');
+    const idx = Number(idxStr);
+    const list = budget === 'jahaat' ? ALL_CONTRACTS_JAHAAT : ALL_CONTRACTS;
+    if(!list || !list[idx]) return null;
+    return {budget, idx, c:list[idx]};
+  }
+
+  window.openReportsTab = function(){
+    onReportTypeChange();
+  };
+
+  window.onReportTypeChange = function(){
+    const type = document.getElementById('report_type')?.value || 'bulk_basic';
+    const multi = document.getElementById('report_multi_options');
+    if(multi) multi.style.display = type === 'bulk_basic' ? 'block' : 'none';
+    renderReportContractChoices();
+  };
+
+  window.renderReportContractChoices = function(){
+    const box = document.getElementById('report_contract_choices');
+    if(!box) return;
+    const type = document.getElementById('report_type')?.value || 'bulk_basic';
+    const includeAll = document.getElementById('report_all_contracts')?.checked !== false;
+    const items = currentReportFilter();
+    if(type === 'bulk_basic' && includeAll){
+      box.innerHTML = `<div class="report-empty" style="padding:18px;">سيتم إدراج جميع العقود المطابقة وعددها ${items.length} عقد.</div>`;
+      return;
+    }
+    if(!items.length){
+      box.innerHTML = '<div class="report-empty" style="padding:18px;">لا توجد عقود مطابقة.</div>';
+      return;
+    }
+    const inputType = type === 'bulk_basic' ? 'checkbox' : 'radio';
+    const name = type === 'bulk_basic' ? 'report_contract_multi' : 'report_contract_single';
+    box.innerHTML = items.map((item, i) => {
+      const c = item.c || {};
+      const checked = (type !== 'bulk_basic' && item.budget === currentBudget && item.idx === currentIdx) || (type === 'bulk_basic' && i < 20) ? 'checked' : '';
+      return `<label class="report-choice">
+        <input type="${inputType}" name="${name}" value="${repEsc(reportContractKey(item))}" ${checked}>
+        <span class="report-choice-num">${repEsc(c.contract_num || '—')}</span>
+        <span class="report-choice-subject">${repEsc(c.subject || c.sheet || 'بدون عنوان')}</span>
+        <span class="report-choice-company">${repEsc(c.company || '—')}</span>
+        <span class="report-choice-budget">${repEsc(budgetLabel(item.budget))}</span>
+      </label>`;
+    }).join('');
+  };
+
+  function selectedReportContracts(){
+    const type = document.getElementById('report_type')?.value || 'bulk_basic';
+    if(type === 'bulk_basic' && document.getElementById('report_all_contracts')?.checked !== false){
+      return currentReportFilter();
+    }
+    const checked = Array.from(document.querySelectorAll('#report_contract_choices input:checked'));
+    const arr = checked.map(ch => findReportContractByKey(ch.value)).filter(Boolean);
+    return arr.length ? arr : currentReportFilter().slice(0, type === 'bulk_basic' ? undefined : 1);
+  }
+
+  function reportHeader(title, subtitle){
+    return `<div class="report-title">
+      <h2>متابعة عقود الديوان</h2>
+      <h3>${repEsc(title)}</h3>
+      ${subtitle ? `<div class="muted">${repEsc(subtitle)}</div>` : ''}
+    </div>
+    <div class="report-meta">
+      <div>تاريخ التقرير: ${new Date().toLocaleDateString('en-GB')}</div>
+      <div>وقت التقرير: ${new Date().toLocaleTimeString('en-GB')}</div>
+    </div>`;
+  }
+
+  function basicRow(item, i){
+    const c = item.c || {};
+    const payments = Array.isArray(c.payments) ? c.payments : [];
+    const paidTotal = payments.reduce((s,p) => s + Number(p.paid || 0), 0);
+    return `<tr>
+      <td>${i + 1}</td>
+      <td>${repEsc(budgetLabel(item.budget))}</td>
+      <td class="num-cell">${repEsc(c.contract_num || '—')}</td>
+      <td>${repEsc(c.proc_type || '—')}</td>
+      <td class="num-cell">${repEsc(c.tender_num || '—')}</td>
+      <td class="text-cell">${repEsc(c.subject || c.sheet || '—')}</td>
+      <td class="text-cell">${repEsc(c.company || '—')}</td>
+      <td class="num-cell">${repEsc(c.civil_num || '—')}</td>
+      <td>${repEsc(repDate(c.date_start))}</td>
+      <td>${repEsc(repDate(c.date_end))}</td>
+      <td>${repEsc(c.duration || '—')}</td>
+      <td class="num-cell">${repEsc(repNum(c.total_value))}</td>
+      <td>${payments.length}</td>
+      <td class="num-cell">${repEsc(repNum(paidTotal))}</td>
+    </tr>`;
+  }
+
+  function buildBulkBasicReport(items){
+    const rows = items.map(basicRow).join('');
+    return `<div class="report-doc" data-report-kind="bulk_basic">
+      ${reportHeader('تقرير البيانات الأساسية للعقود', `عدد العقود: ${items.length}`)}
+      <table class="report-table">
+        <thead><tr>
+          <th style="width:34px">م</th>
+          <th>نوع الميزانية</th>
+          <th>رقم العقد</th>
+          <th>نوع الإجراء</th>
+          <th>رقم المناقصة/الممارسة</th>
+          <th>موضوع العقد</th>
+          <th>اسم الشركة</th>
+          <th>الرقم المدني</th>
+          <th>البداية</th>
+          <th>النهاية</th>
+          <th>المدة</th>
+          <th>القيمة الإجمالية</th>
+          <th>عدد الدفعات</th>
+          <th>إجمالي المدفوع</th>
+        </tr></thead>
+        <tbody>${rows || '<tr><td colspan="14">لا توجد بيانات.</td></tr>'}</tbody>
+      </table>
+    </div>`;
+  }
+
+  function infoCell(label, value){
+    return `<div class="report-info-cell"><div class="report-info-label">${repEsc(label)}</div><div class="report-info-value">${repEsc(repText(value))}</div></div>`;
+  }
+
+  function buildSingleFullReport(item){
+    if(!item) return '<div class="report-empty">اختر عقدًا لعرض التقرير التفصيلي.</div>';
+    const c = item.c || {};
+    const payments = Array.isArray(c.payments) ? c.payments : [];
+    const extensions = Array.isArray(c.extensions) ? c.extensions : [];
+    const info = [
+      ['نوع الميزانية', budgetLabel(item.budget)],
+      ['موضوع العقد', c.subject || c.sheet],
+      ['اسم الشركة', c.company],
+      ['الرقم المدني', c.civil_num],
+      ['رقم العقد', c.contract_num],
+      ['رقم الارتباط', c.link_num],
+      ['نوع الإجراء', c.proc_type],
+      [tenderLabel(c.proc_type), c.tender_num],
+      ['مدة العقد', c.duration],
+      ['تاريخ البداية', repDate(c.date_start)],
+      ['تاريخ النهاية', repDate(c.date_end)],
+      ['القيمة الإجمالية', repNum(c.total_value)],
+      ['القيمة السنوية', repNum(c.annual_value)],
+      ['التأمين النهائي', c.insurance],
+      ['شهادة العمالة', c.labor_cert],
+      ['شهادة الضريبة', c.tax_cert]
+    ].map(([a,b]) => infoCell(a,b)).join('');
+
+    const extRows = extensions.length ? extensions.map((e, i) => `<tr>
+      <td>${i + 1}</td><td>${repEsc(repDate(e.start))}</td><td>${repEsc(repDate(e.end))}</td><td class="num-cell">${repEsc(repNum(e.value))}</td><td class="text-cell">${repEsc(e.notes || '—')}</td>
+    </tr>`).join('') : '<tr><td colspan="5">لا توجد تمديدات.</td></tr>';
+
+    const payRows = payments.length ? payments.map((p, i) => `<tr>
+      <td>${i + 1}</td>
+      <td class="text-cell">${repEsc(p.period || '—')}</td>
+      <td class="num-cell">${repEsc(repNum(p.amount))}</td>
+      <td>${repEsc(p.request || '—')}</td>
+      <td class="num-cell">${repEsc(repNum(p.deduct))}</td>
+      <td class="num-cell">${repEsc(repNum(p.fine))}</td>
+      <td>${repEsc(p.fine_form || '—')}</td>
+      <td class="num-cell">${repEsc(repNum(p.paid))}</td>
+      <td>${repEsc(p.disp_form || '—')}</td>
+      <td>${repEsc(p.pay_form || '—')}</td>
+      <td class="text-cell">${repEsc(p.notes || '—')}</td>
+    </tr>`).join('') : '<tr><td colspan="11">لا توجد دفعات.</td></tr>';
+
+    return `<div class="report-doc" data-report-kind="single_full">
+      ${reportHeader('تقرير تفصيلي لعقد', `${c.contract_num || '—'} — ${c.company || ''}`)}
+      <div class="report-section-heading">أولًا — البيانات الأساسية</div>
+      <div class="report-info-grid">${info}</div>
+
+      <div class="report-section-heading">ثانيًا — تفاصيل التمديدات</div>
+      <table class="report-table">
+        <thead><tr><th>م</th><th>بداية التمديد</th><th>نهاية التمديد</th><th>قيمة التمديد</th><th>ملاحظات</th></tr></thead>
+        <tbody>${extRows}</tbody>
+      </table>
+
+      <div class="report-section-heading">ثالثًا — تفاصيل الدفعات</div>
+      <table class="report-table">
+        <thead><tr>
+          <th>م</th><th>فترة / بيان الدفعة</th><th>مبلغ الدفعة</th><th>طلب السداد</th><th>التخفيض</th><th>الغرامة</th><th>استمارة الغرامة</th><th>المبلغ المدفوع</th><th>استمارة الصرف</th><th>استمارة السداد</th><th>ملاحظات</th>
+        </tr></thead>
+        <tbody>${payRows}</tbody>
+      </table>
+    </div>`;
+  }
+
+  function auditMatchesContract(row, item){
+    const c = item?.c || {};
+    const no = String(c.contract_num || '').trim();
+    const sub = String(c.subject || c.sheet || '').trim();
+    return (!no || String(row.contract || '').trim() === no) || (sub && String(row.subject || '').trim() === sub);
+  }
+
+  function changeDetailsHtml(row){
+    if(Array.isArray(row.changes) && row.changes.length){
+      return `<ul class="report-change-list">${row.changes.map(ch => `<li><b>${repEsc(ch.field || '—')}:</b> من «${repEsc(repText(ch.oldValue))}» إلى «${repEsc(repText(ch.newValue))}»</li>`).join('')}</ul>`;
+    }
+    return repEsc([row.action, row.reason].filter(x => x && x !== '—').join(' — ') || '—');
+  }
+
+  function buildSingleAuditReport(item){
+    if(!item) return '<div class="report-empty">اختر عقدًا لعرض سجل التعديلات.</div>';
+    const c = item.c || {};
+    const logs = (typeof getAuditLog === 'function' ? getAuditLog() : []).filter(r => auditMatchesContract(r, item));
+    const rows = logs.length ? logs.map((r, i) => `<tr>
+      <td>${i + 1}</td>
+      <td>${repEsc(r.time || '—')}</td>
+      <td>${repEsc(r.approvedBy || r.by || '—')}</td>
+      <td>${repEsc(r.action || '—')}</td>
+      <td class="text-cell">${changeDetailsHtml(r)}</td>
+      <td class="text-cell">${repEsc(r.reason || '—')}</td>
+    </tr>`).join('') : '<tr><td colspan="6">لا توجد تعديلات مسجلة على هذا العقد حتى الآن.</td></tr>';
+
+    return `<div class="report-doc" data-report-kind="single_audit">
+      ${reportHeader('تقرير مفصل بالتعديلات على عقد', `${c.contract_num || '—'} — ${c.subject || c.sheet || ''}`)}
+      <div class="report-info-grid">
+        ${infoCell('نوع الميزانية', budgetLabel(item.budget))}
+        ${infoCell('رقم العقد', c.contract_num)}
+        ${infoCell('موضوع العقد', c.subject || c.sheet)}
+        ${infoCell('اسم الشركة', c.company)}
+      </div>
+      <table class="report-table">
+        <thead><tr>
+          <th style="width:36px">م</th>
+          <th>متى</th>
+          <th>من قام بالتعديل</th>
+          <th>نوع الإجراء</th>
+          <th>التعديل</th>
+          <th>سبب/ملاحظة</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+  }
+
+  window.generateReport = function(){
+    const type = document.getElementById('report_type')?.value || 'bulk_basic';
+    const out = document.getElementById('reports-output');
+    if(!out) return;
+    const items = selectedReportContracts();
+    if(type === 'bulk_basic') out.innerHTML = buildBulkBasicReport(items);
+    else if(type === 'single_full') out.innerHTML = buildSingleFullReport(items[0]);
+    else out.innerHTML = buildSingleAuditReport(items[0]);
+  };
+
+  window.printReport = function(){
+    generateReport();
+    document.body.classList.add('printing-report');
+    setTimeout(() => {
+      window.print();
+      setTimeout(() => document.body.classList.remove('printing-report'), 700);
+    }, 220);
+  };
+
+  window.exportReportCSV = function(){
+    generateReport();
+    const doc = document.querySelector('#reports-output .report-doc');
+    if(!doc){ showToast('لا يوجد تقرير لتصديره', '⚠️'); return; }
+    const rows = [];
+    doc.querySelectorAll('table').forEach(table => {
+      table.querySelectorAll('tr').forEach(tr => {
+        rows.push(Array.from(tr.children).map(td => '"' + String(td.innerText || '').replace(/"/g, '""').replace(/\n/g, ' / ') + '"').join(','));
+      });
+      rows.push('');
+    });
+    const csv = '\ufeff' + rows.join('\n');
+    const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'تقرير_العقود_' + new Date().toISOString().slice(0,10) + '.csv';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 300);
+  };
+
+  // توسيع التبويبات لتشمل شاشة التقارير
+  const _oldSwitchTab = window.switchTab;
+  window.switchTab = function(btn, tabId){
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    if(btn) btn.classList.add('active');
+    ['tab-entry','tab-payments','tab-summary','tab-reports'].forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.style.display = id === tabId ? 'block' : 'none';
+    });
+    if(tabId === 'tab-summary' && typeof updateSummary === 'function') updateSummary();
+    if(tabId === 'tab-reports') openReportsTab();
+  };
+
+  function valueComparable(v){
+    if(v === null || v === undefined) return '';
+    if(typeof v === 'number') return Number(v || 0).toFixed(3);
+    return String(v).trim();
+  }
+
+  function summarizeContractChanges(before, after){
+    const changes = [];
+    before = before || {};
+    after = after || {};
+    Object.keys(REPORT_FIELD_LABELS).forEach(k => {
+      const oldV = valueComparable(before[k]);
+      const newV = valueComparable(after[k]);
+      if(oldV !== newV){
+        changes.push({field:REPORT_FIELD_LABELS[k], oldValue:before[k] ?? '', newValue:after[k] ?? ''});
+      }
+    });
+    const maxP = Math.max((before.payments || []).length, (after.payments || []).length);
+    for(let i=0;i<maxP;i++){
+      const b = (before.payments || [])[i] || {};
+      const a = (after.payments || [])[i] || {};
+      Object.keys(PAYMENT_FIELD_LABELS).forEach(k => {
+        const oldV = valueComparable(b[k]);
+        const newV = valueComparable(a[k]);
+        if(oldV !== newV){
+          changes.push({field:`الدفعة ${i+1} - ${PAYMENT_FIELD_LABELS[k]}`, oldValue:b[k] ?? '', newValue:a[k] ?? ''});
+        }
+      });
+    }
+    const maxE = Math.max((before.extensions || []).length, (after.extensions || []).length);
+    for(let i=0;i<maxE;i++){
+      const b = (before.extensions || [])[i] || {};
+      const a = (after.extensions || [])[i] || {};
+      ['start','end','value','notes'].forEach(k => {
+        const labels = {start:'بداية التمديد', end:'نهاية التمديد', value:'قيمة التمديد', notes:'ملاحظات التمديد'};
+        const oldV = valueComparable(b[k]);
+        const newV = valueComparable(a[k]);
+        if(oldV !== newV){
+          changes.push({field:`التمديد ${i+1} - ${labels[k]}`, oldValue:b[k] ?? '', newValue:a[k] ?? ''});
+        }
+      });
+    }
+    return changes.slice(0, 80);
+  }
+
+  const _originalSaveCurrentEditsForReports = window.saveCurrentEdits;
+  if(typeof _originalSaveCurrentEditsForReports === 'function'){
+    window.saveCurrentEdits = async function(){
+      const beforeObj = (typeof getCurrentContractObject === 'function' && getCurrentContractObject()) ? JSON.parse(JSON.stringify(getCurrentContractObject())) : null;
+      const result = await _originalSaveCurrentEditsForReports.apply(this, arguments);
+      const afterObj = (typeof getCurrentContractObject === 'function' && getCurrentContractObject()) ? JSON.parse(JSON.stringify(getCurrentContractObject())) : null;
+      const changes = summarizeContractChanges(beforeObj, afterObj);
+      if(changes.length){
+        try{
+          const log = getAuditLog();
+          if(log && log.length){
+            log[0].changes = changes;
+            log[0].action = log[0].action || 'حفظ تعديل بيانات العقد';
+            saveAuditLog(log.slice(0, 500));
+            if(typeof saveSharedSystemData === 'function') saveSharedSystemData('تحديث تفاصيل سجل التعديلات');
+          }
+        }catch(e){ console.warn('audit change details update failed', e); }
+      }
+      return result;
+    };
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    setTimeout(() => {
+      if(document.getElementById('tab-reports')) renderReportContractChoices();
+    }, 500);
   });
 })();
 
