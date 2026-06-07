@@ -3395,6 +3395,18 @@ body:not(.admin-session) #audit-panel,body:not(.admin-session) #permissions-pane
   font-family:'Cairo',Tahoma,Arial,sans-serif;
 }
 .report-doc *{box-sizing:border-box}
+.report-official-header{margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #bbb}
+.report-header-grid{display:grid;grid-template-columns:1fr 1.18fr 1fr;align-items:center;gap:16px;width:100%;direction:ltr}
+.report-doc .print-header-left{display:flex;justify-content:flex-start;align-items:center;min-height:72px;text-align:left;direction:ltr}
+.report-doc .print-header-left .print-name-img{width:150px;max-width:100%;height:auto;object-fit:contain;display:block}
+.report-header-center{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;direction:rtl;min-height:72px;line-height:1.35}
+.report-header-title-main{font-size:18px;font-weight:900;color:#000;margin:0 0 2px}
+.report-header-title-sub{font-size:12px;font-weight:800;color:#333;margin:0 0 3px}
+.report-header-title-report{font-size:20px;font-weight:900;color:#000;margin:2px 0 3px}
+.report-header-title-kind{font-size:15px;font-weight:900;color:#000;margin:0 0 3px}
+.report-header-title-muted{font-size:11px;color:#555;font-weight:700;margin:0}
+.report-doc .print-header-logo{display:flex;justify-content:flex-end;align-items:center;text-align:right;min-height:72px}
+.report-doc .print-header-logo .print-logo-img,.report-doc .print-header-logo img{width:68px;height:auto;object-fit:contain;display:block}
 .report-title{text-align:center;margin-bottom:14px;border-bottom:1px solid #bbb;padding-bottom:10px}
 .report-title h2{font-size:20px;margin:0 0 4px;font-weight:900;color:#000}
 .report-title h3{font-size:15px;margin:0 0 4px;font-weight:900;color:#000}
@@ -6174,12 +6186,32 @@ console.log('PATCH_BUDGET_UNDER_HEADER_CONTRACT_NUMBER');
     return arr.length ? arr : currentReportFilter().slice(0, type === 'bulk_basic' ? undefined : 1);
   }
 
+  function buildReportOfficialHeader(title, subtitle){
+    let leftHtml = '';
+    let logoHtml = '';
+    try{
+      const host = document.createElement('div');
+      host.innerHTML = buildOfficialPrintHeader(0, 0);
+      leftHtml = host.querySelector('.print-header-left')?.outerHTML || '';
+      logoHtml = host.querySelector('.print-header-logo')?.outerHTML || '';
+    }catch(_err){}
+    return `<div class="report-official-header">
+      <div class="report-header-grid">
+        ${leftHtml}
+        <div class="report-header-center">
+          <div class="report-header-title-main">ديوان الخدمة المدنية</div>
+          <div class="report-header-title-sub">Civil Service Diwan</div>
+          <div class="report-header-title-report">متابعة عقود الديوان</div>
+          <div class="report-header-title-kind">${repEsc(title)}</div>
+          ${subtitle ? `<div class="report-header-title-muted">${repEsc(subtitle)}</div>` : ''}
+        </div>
+        ${logoHtml}
+      </div>
+    </div>`;
+  }
+
   function reportHeader(title, subtitle){
-    return `<div class="report-title">
-      <h2>متابعة عقود الديوان</h2>
-      <h3>${repEsc(title)}</h3>
-      ${subtitle ? `<div class="muted">${repEsc(subtitle)}</div>` : ''}
-    </div>
+    return `${buildReportOfficialHeader(title, subtitle)}
     <div class="report-meta">
       <div>تاريخ التقرير: ${new Date().toLocaleDateString('en-GB')}</div>
       <div>وقت التقرير: ${new Date().toLocaleTimeString('en-GB')}</div>
@@ -6368,7 +6400,7 @@ console.log('PATCH_BUDGET_UNDER_HEADER_CONTRACT_NUMBER');
       return;
     }
 
-    const title = (doc.querySelector('.report-title h3')?.innerText || 'تقرير العقود').trim();
+    const title = (doc.querySelector('.report-header-title-kind')?.innerText || doc.querySelector('.report-title h3')?.innerText || 'تقرير العقود').trim();
     const printWindow = window.open('', '_blank', 'width=1200,height=850,scrollbars=yes,resizable=yes');
     if(!printWindow){
       showToast('يرجى السماح بالنوافذ المنبثقة لطباعة التقرير / حفظه PDF', '⚠️');
@@ -6382,6 +6414,18 @@ console.log('PATCH_BUDGET_UNDER_HEADER_CONTRACT_NUMBER');
       html,body{margin:0;padding:0;background:#fff;color:#000;direction:rtl;font-family:Arial,Tahoma,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
       body{padding:8mm;}
       .report-doc{background:#fff;color:#000;direction:rtl;width:100%;padding:0;font-family:Arial,Tahoma,sans-serif;}
+      .report-official-header{margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #bbb;}
+      .report-header-grid{display:grid;grid-template-columns:1fr 1.18fr 1fr;align-items:center;gap:16px;width:100%;direction:ltr;}
+      .print-header-left{display:flex;justify-content:flex-start;align-items:center;min-height:72px;text-align:left;direction:ltr;}
+      .print-header-left .print-name-img{width:150px;max-width:100%;height:auto;display:block;object-fit:contain;}
+      .report-header-center{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;direction:rtl;min-height:72px;line-height:1.35;}
+      .report-header-title-main{font-size:18pt;font-weight:900;color:#000;margin:0 0 2px;}
+      .report-header-title-sub{font-size:10pt;font-weight:800;color:#333;margin:0 0 3px;}
+      .report-header-title-report{font-size:17pt;font-weight:900;color:#000;margin:2px 0 3px;}
+      .report-header-title-kind{font-size:12pt;font-weight:900;color:#000;margin:0 0 3px;}
+      .report-header-title-muted{font-size:9pt;color:#555;font-weight:700;margin:0;}
+      .print-header-logo{display:flex;justify-content:flex-end;align-items:center;text-align:right;min-height:72px;}
+      .print-header-logo .print-logo-img,.print-header-logo img{width:68px;height:auto;display:block;object-fit:contain;}
       .report-title{text-align:center;margin-bottom:10px;border-bottom:1px solid #bbb;padding-bottom:8px;}
       .report-title h2{font-size:18pt;margin:0 0 3px;font-weight:900;color:#000;}
       .report-title h3{font-size:13pt;margin:0 0 3px;font-weight:900;color:#000;}
